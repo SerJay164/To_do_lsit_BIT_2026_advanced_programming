@@ -1,25 +1,25 @@
-import sqlite3
+from typing import Optional
+from sqlmodel import Field, SQLModel, create_engine
+
+class Task(SQLModel, table=True):
+    __tablename__ = "tasks"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str = Field(nullable=False)
+    due_date: Optional[str] = Field(default=None)
+    status: str = Field(default="pending", nullable=False)
+    priority: str = Field(nullable=False)
+
 
 DB_NAME = "to_do.db"
+sqlite_url = f"sqlite:///{DB_NAME}"
 
-
-def create_connection():
-    return sqlite3.connect(DB_NAME)
+engine = create_engine(sqlite_url, echo=True)
 
 
 def create_tables():
-    conn = create_connection()
-    cursor = conn.cursor()
+    SQLModel.metadata.create_all(engine)
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            due_date TEXT,
-            status TEXT NOT NULL DEFAULT 'pending',
-            priority TEXT NOT NULL
-        )
-    """)
 
-    conn.commit()
-    conn.close()
+if __name__ == "__main__":
+    create_tables()

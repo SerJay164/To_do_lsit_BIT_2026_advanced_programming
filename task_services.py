@@ -1,11 +1,7 @@
 from datetime import datetime, date
-from tkinter import END
-from typing import Any
+from sqlmodel import Session, select, col
 
-from database import create_connection
-
-
-Task = dict[str, Any]
+from database import engine, Task
 
 
 class TaskService:
@@ -22,7 +18,6 @@ class TaskService:
 
         return title
 
-
     @staticmethod
     def parse_due_date(date_str: str) -> date | None:
         date_str = date_str.strip()
@@ -35,7 +30,6 @@ class TaskService:
         except ValueError:
             raise ValueError("Invalid date format. Please use DD-MM-YYYY")
 
-
     @staticmethod
     def validate_priority(priority: str) -> str:
         priority = priority.strip().lower()
@@ -46,7 +40,6 @@ class TaskService:
             raise ValueError("Priority must be: low, medium, high, or urgent")
 
         return priority
-
 
     @staticmethod
     def validate_status(status: str) -> str:
@@ -59,237 +52,126 @@ class TaskService:
 
         return status
 
-
-    @staticmethod
-    def get_next_id(task_list: list[Task]) -> int:
-        if len(task_list) == 0:
-            return 1
-
-        return max(task["id"] for task in task_list) + 1
-
-
     @staticmethod
     def add_task(title: str, date_str: str, priority: str) -> None:
         title = TaskService.validate_title(title)
         due_date = TaskService.parse_due_date(date_str)
         priority = TaskService.validate_priority(priority)
 
-        due_date_db = due_date.strftime("%Y-%m-%d") if due_date is not None else None
+        due_date_db = due_date.strftime(
+            "%Y-%m-%d") if due_date is not None else None
 
-        conn = create_connection()
-        cursor = conn.cursor()
+        task = Task(title=title, due_date=due_date_db,
+                    status="pending", priority=priority)
 
-        cursor.execute("""
-        INSERT INTO tasks (title, due_date, status, priority)
-        VALUES (?, ?, ?, ?)
-        """, (title, due_date_db, "pending", priority))
-
-        conn.commit()
-        conn.close()
-    
+        with Session(engine) as session:
+            session.add(task)
+            session.commit()
 
     @staticmethod
-    def list_tasks():
-
-        conn = create_connection()
-        cursor= conn.cursor()
-
-        cursor.execute("SELECT * FROM tasks")
-
-        tasks = cursor.fetchall()
-
-        conn.close()
-
-        return tasks
-
+    def list_tasks() -> list[Task]:
+        with Session(engine) as session:
+            return session.exec(select(Task)).all()
 
     @staticmethod
-    def sort_task_by_due_date():
-
-        conn = create_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT * FROM tasks ORDER BY due_date is NULL, due_date")
-
-        tasks = cursor.fetchall()
-
-        conn.close()
-        
-        return tasks
-    
+    def sort_task_by_due_date() -> list[Task]:
+        with Session(engine) as session:
+            statement = select(Task).order_by(
+                col(Task.due_date).is_(None), Task.due_date)
+            return session.exec(statement).all()
 
     @staticmethod
-    def sort_task_by_priority():
+    def sort_task_by_priority() -> list[Task]:
+        priority_order = {"urgent": 1, "high": 2, "medium": 3, "low": 4}
 
-        conn = create_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-                       SELECT * FROM tasks 
-                       ORDER BY  
-                            CASE priority  
-                               WHEN 'urgent' THEN 1 
-                               WHEN 'high' THEN 2  
-                               WHEN 'medium' THEN 3  
-                               WHEN 'low' THEN 4
-                                ELSE 5
-                            END
-                        """)        
-        
-        tasks = cursor.fetchall()
-
-        conn.close()
-
-        return tasks
-        
+        with Session(engine) as session:
+            tasks = session.exec(select(Task)).all()
+            return sorted(tasks, key=lambda t: priority_order.get(t.priority, 5))
 
     @staticmethod
-    def sort_task_by_priority_and_due_date():
+    def sort_task_by_priority_and_due_date() -> list[Task]:
+        priority_order = {"urgent": 1, "high": 2, "medium": 3, "low": 4}
 
-        conn = create_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-                       SELECT * FROM tasks
-                       ORDER BY
-                            CASE priority  
-                               WHEN 'urgent' THEN 1 
-                               WHEN 'high' THEN 2  
-                               WHEN 'medium' THEN 3  
-                               WHEN 'low' THEN 4
-                                ELSE 5
-                            END,
-                            due_date is NULL, due_date
-                        """)
-        
-        tasks = cursor.fetchall()
-        
-        conn.close()
-
-        return tasks
-    
+        with Session(engine) as session:
+            tasks = session.exec(select(Task)).all()
+            return sorted(
+                tasks,
+                key=lambda t: (
+                    priority_order.get(t.priority, 5),
+                    (t.due_date is None, t.due_date)
+                )
+            )
 
     @staticmethod
-    def find_task_by_id(task_id: int):
+    def find_task_by_id(task_id: int) -> Task:
+        with Session(engine) as session:
+            task = session.get(Task, task_id)
 
-        conn = create_connection()
-        cursor = conn.cursor()
+            if task is None:
+                raise ValueError(f"Task {task_id} not found")
 
-        cursor.execute("""
-                       SELECT * FROM tasks 
-                       WHERE id = ?
-                       """, (task_id,))
-
-        task = cursor.fetchone()
-
-        conn.close()
-
-        if task is None:
-            raise ValueError(f"Task {task_id} not found")
-        
-        return task
-
+            return task
 
     @staticmethod
-    def delete_task(task_id: int):
-        
-        conn = create_connection()
-        cursor = conn.cursor()
+    def delete_task(task_id: int) -> None:
+        with Session(engine) as session:
+            task = session.get(Task, task_id)
 
-        cursor.execute("""
-                       DELETE FROM tasks
-                       WHERE id = ?
-                       """, (task_id,))
-        
-        if cursor.rowcount == 0:
-            raise ValueError(f"Task {task_id} not found")
-        
-        conn.commit()
-        
-        conn.close()
+            if task is None:
+                raise ValueError(f"Task {task_id} not found")
 
-        
+            session.delete(task)
+            session.commit()
+
     @staticmethod
-    def edit_task(task_id: int, title: str, date_str: str, priority: str, status: str):
-
+    def edit_task(task_id: int, title: str, date_str: str, priority: str, status: str) -> None:
         title = TaskService.validate_title(title)
         due_date = TaskService.parse_due_date(date_str)
         priority = TaskService.validate_priority(priority)
         status = TaskService.validate_status(status)
 
-        due_date_db = due_date.strftime("%Y-%m-%d") if due_date is not None else None
+        due_date_db = due_date.strftime(
+            "%Y-%m-%d") if due_date is not None else None
 
-        conn = create_connection()
-        cursor = conn.cursor()
+        with Session(engine) as session:
+            task = session.get(Task, task_id)
 
-        cursor.execute("""
-                       UPDATE tasks
-                       SET title = ?, due_date = ?, priority = ?, status = ?
-                       WHERE id = ?
-                       """, (title, due_date_db, priority, status, task_id))
-        
-        if cursor.rowcount == 0:
-            raise ValueError(f"Task {task_id} not found")
+            if task is None:
+                raise ValueError(f"Task {task_id} not found")
 
-        conn.commit()
-        conn.close()
+            task.title = title
+            task.due_date = due_date_db
+            task.priority = priority
+            task.status = status
 
+            session.add(task)
+            session.commit()
 
     @staticmethod
-    def update_task_status(task_id: int, status: str):
-
+    def update_task_status(task_id: int, status: str) -> None:
         status = TaskService.validate_status(status)
 
-        conn = create_connection()
-        cursor = conn.cursor()
+        with Session(engine) as session:
+            task = session.get(Task, task_id)
 
-        cursor.execute("""
-                       UPDATE tasks
-                       SET status = ?
-                       WHERE id = ?
-                       """, (status, task_id))
+            if task is None:
+                raise ValueError(f"Task {task_id} not found")
 
-        if cursor.rowcount == 0:
-            raise ValueError(f"Task {task_id} not found")
-        
-        conn.commit()
-        
-        conn.close()
+            task.status = status
 
+            session.add(task)
+            session.commit()
 
     @staticmethod
-    def filter_task_by_status(status: str):
-
+    def filter_task_by_status(status: str) -> list[Task]:
         status = TaskService.validate_status(status)
 
-        conn = create_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-                       SELECT * FROM tasks 
-                       WHERE status = ?
-                       """, (status,))
-        
-        tasks = cursor.fetchall()
-
-        conn.close()
-
-        return tasks
-
+        with Session(engine) as session:
+            statement = select(Task).where(Task.status == status)
+            return session.exec(statement).all()
 
     @staticmethod
-    def filter_done_task():
-
-        conn = create_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-                       SELECT * FROM tasks 
-                       WHERE status = 'done'
-                       """)
-        
-        tasks = cursor.fetchall()
-
-        conn.close()
-
-        return tasks
+    def filter_done_task() -> list[Task]:
+        with Session(engine) as session:
+            statement = select(Task).where(Task.status == "done")
+            return session.exec(statement).all()

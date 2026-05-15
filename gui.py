@@ -1,6 +1,6 @@
 from nicegui import ui
 
-from database import create_tables
+from database import create_tables, Task
 from task_services import TaskService
 
 
@@ -70,28 +70,23 @@ columns = [
 # Helper functions
 # ------------------------------------------------------------
 
-def task_tuple_to_dict(task: tuple) -> dict:
-    """
-    Convert a database task tuple into a dictionary for the NiceGUI table.
-
-    Expected tuple order:
-    id, title, due_date, status, priority
-    """
+def task_to_dict(task: Task) -> dict:
+    """Convert a SQLModel Task object into a dictionary for the NiceGUI table."""
     return {
-        "id": task[0],
-        "title": task[1],
-        "due_date": task[2] if task[2] else "",
-        "status": task[3],
-        "priority": task[4],
+        "id": task.id,
+        "title": task.title,
+        "due_date": task.due_date if task.due_date else "",
+        "status": task.status,
+        "priority": task.priority,
     }
 
 
-def calculate_task_stats(tasks: list[tuple]) -> dict:
+def calculate_task_stats(tasks: list[Task]) -> dict:
     """Calculate dashboard statistics for all tasks."""
     total = len(tasks)
-    done = sum(1 for task in tasks if task[3] == "done")
+    done = sum(1 for task in tasks if task.status == "done")
     pending = total - done
-    high_priority = sum(1 for task in tasks if task[4] == "high")
+    high_priority = sum(1 for task in tasks if task.priority == "high")
 
     completion = 0
     if total > 0:
@@ -132,12 +127,12 @@ def get_selected_task_id(task_id_input) -> int:
     return task_id
 
 
-def get_all_tasks() -> list[tuple]:
+def get_all_tasks() -> list[Task]:
     """Return all tasks sorted by priority and due date."""
     return TaskService.sort_task_by_priority_and_due_date()
 
 
-def get_visible_tasks(status_filter_value: str) -> list[tuple]:
+def get_visible_tasks(status_filter_value: str) -> list[Task]:
     """Return tasks based on the selected status filter."""
     if status_filter_value == "all":
         return get_all_tasks()
@@ -192,7 +187,8 @@ def task_page():
                     ui.label("Open").classes("text-xs opacity-70")
 
                 with ui.card().classes("p-4 bg-white/10 rounded-xl shadow-none"):
-                    progress_label = ui.label("0%").classes("text-2xl font-bold")
+                    progress_label = ui.label(
+                        "0%").classes("text-2xl font-bold")
                     ui.label("Progress").classes("text-xs opacity-70")
 
             progress_bar = ui.linear_progress(value=0).classes("w-full mt-4")
@@ -235,7 +231,8 @@ def task_page():
                     except ValueError as error:
                         ui.notify(str(error), type="negative")
                     except Exception as error:
-                        ui.notify(f"Unexpected error: {error}", type="negative")
+                        ui.notify(
+                            f"Unexpected error: {error}", type="negative")
 
                 ui.button(
                     "Add mission",
@@ -279,7 +276,8 @@ def task_page():
                     except ValueError as error:
                         ui.notify(str(error), type="negative")
                     except Exception as error:
-                        ui.notify(f"Unexpected error: {error}", type="negative")
+                        ui.notify(
+                            f"Unexpected error: {error}", type="negative")
 
                 def mark_pending():
                     try:
@@ -296,7 +294,8 @@ def task_page():
                     except ValueError as error:
                         ui.notify(str(error), type="negative")
                     except Exception as error:
-                        ui.notify(f"Unexpected error: {error}", type="negative")
+                        ui.notify(
+                            f"Unexpected error: {error}", type="negative")
 
                 def delete_task():
                     try:
@@ -315,7 +314,8 @@ def task_page():
                     except ValueError as error:
                         ui.notify(str(error), type="negative")
                     except Exception as error:
-                        ui.notify(f"Unexpected error: {error}", type="negative")
+                        ui.notify(
+                            f"Unexpected error: {error}", type="negative")
 
                 ui.button(
                     "Done",
@@ -351,10 +351,7 @@ def task_page():
                     visible_tasks = get_visible_tasks(status_filter.value)
                     all_tasks = get_all_tasks()
 
-                    table.rows = [
-                        task_tuple_to_dict(task)
-                        for task in visible_tasks
-                    ]
+                    table.rows = [task_to_dict(task) for task in visible_tasks]
                     table.update()
 
                     stats = calculate_task_stats(all_tasks)
@@ -369,7 +366,8 @@ def task_page():
                     progress_bar.update()
 
                 except Exception as error:
-                    ui.notify(f"Could not refresh tasks: {error}", type="negative")
+                    ui.notify(
+                        f"Could not refresh tasks: {error}", type="negative")
 
             status_filter.on_value_change(lambda _: refresh_table())
 
