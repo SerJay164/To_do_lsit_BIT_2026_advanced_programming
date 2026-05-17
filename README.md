@@ -711,9 +711,7 @@ Dark mode / theme switch
 Deployment with Docker
 GitHub Actions for automated test execution
 
-Authors
-
-SerJusJer Team:
+Authors / SerJusJer Team:
 Justin Vogler
 Jeremy Heer
 Seraphin Schobin
