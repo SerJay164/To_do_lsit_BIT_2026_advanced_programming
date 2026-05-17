@@ -16,7 +16,7 @@ class Task(SQLModel, table=True):
 DB_NAME = "to_do.db"
 sqlite_url = f"sqlite:///{DB_NAME}"
 
-engine = create_engine(sqlite_url, echo=True)
+engine = create_engine(sqlite_url, echo=False)
 
 
 def create_tables():
