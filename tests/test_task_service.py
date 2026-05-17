@@ -159,7 +159,13 @@ def test_find_task_by_id_raises_error_for_missing_id():
 def test_edit_task_updates_existing_task():
     TaskService.add_task("Old title", "01-05-2026", "low")
 
-    TaskService.edit_task(1, "New title", "31-05-2026", "urgent")
+    TaskService.edit_task(
+    1,
+    "New title",
+    "31-05-2026",
+    "urgent",
+    "pending"
+)
 
     tasks = TaskService.list_tasks()[0]
     assert tasks.title == "New title"
@@ -172,7 +178,13 @@ def test_edit_task_rejects_invalid_title():
     TaskService.add_task("Old title", "01-05-2026", "low")
 
     with pytest.raises(ValueError):
-        TaskService.edit_task(1, "", "31-05-2026", "high")
+        TaskService.edit_task(
+    1,
+    "New title",
+    "31-05-2026",
+    "urgent",
+    "pending"
+)
     
     tasks = TaskService.list_tasks()[0]
 
@@ -183,7 +195,13 @@ def test_edit_task_rejects_invalid_date():
     TaskService.add_task("Old title", "01-05-2026", "low")
 
     with pytest.raises(ValueError):
-        TaskService.edit_task(1, "New title", "2026-05-31", "high")
+        TaskService.edit_task(
+    1,
+    "New title",
+    "2026-05-31",
+    "urgent",
+    "pending"
+)
 
     tasks = TaskService.list_tasks()[0]
 
@@ -196,7 +214,13 @@ def test_edit_task_rejects_invalid_priority():
     TaskService.add_task("Old title", "01-05-2026", "low")
 
     with pytest.raises(ValueError):
-        TaskService.edit_task(1, "New title", "31-05-2026", "invalid")
+        TaskService.edit_task(
+    1,
+    "New title",
+    "31-05-2026",
+    "invalid",
+    "pending"
+)
 
     tasks = TaskService.list_tasks()[0]
 
@@ -254,7 +278,8 @@ def test_filter_pending_task_returns_only_pending_tasks():
     TaskService.add_task("Task A", "", "low")
     TaskService.add_task("Task B", "", "medium")
 
-    TaskService.list_tasks()[1].status = "pending"
+    TaskService.list_tasks(0).status = "pending"
+    TaskService.list_tasks(1).status = "done"
 
     result = TaskService.filter_pending_task()
 
@@ -264,8 +289,8 @@ def test_filter_pending_task_returns_only_pending_tasks():
 
 
 def test_filter_done_task_returns_only_done_tasks():
-    TaskService.add_task("Task A", "", "low")
-    TaskService.add_task("Task B", "", "medium")
+    TaskService.add_task("Task A", "", "low", "done")
+    TaskService.add_task("Task B", "", "medium", "done")
 
     TaskService.update_task_status(2, "done")
 
@@ -278,7 +303,7 @@ def test_filter_done_task_returns_only_done_tasks():
 
 def test_filter_pending_task_returns_empty_list_if_no_pending_tasks():
     TaskService.add_task("Task A", "", "low")
-    TaskService.uodate_task_status(1, "done")
+    TaskService.update_task_status(1, "done")
 
     result = TaskService.filter_pending_task()
 
@@ -298,11 +323,11 @@ def test_filter_done_task_returns_empty_list_if_no_done_tasks():
 # ---------------------------
 
 def test_sort_task_by_due_date_sorts_earliest_date_first_and_none_last():
-    TaskService.add_task("No date", "", "low")
-    TaskService.add_task("Later", "20-05-2026", "low")
-    TaskService.add_task("Earlier", "10-05-2026", "low")
+    TaskService.add_task("No date", "", "low", "pending")
+    TaskService.add_task("Later", "20-05-2026", "low", "pending")
+    TaskService.add_task("Earlier", "10-05-2026", "low", "pending")
 
-    result = TaskService.sort_task_by_due_date(TaskService.list_tasks())
+    result = TaskService.sort_task_by_due_date()
 
     assert result[0].title == "Earlier"
     assert result[1].title == "Later"
@@ -310,12 +335,12 @@ def test_sort_task_by_due_date_sorts_earliest_date_first_and_none_last():
 
 
 def test_sort_task_by_priority_sorts_urgent_first():
-    TaskService.add_task("Low task", "", "low")
-    TaskService.add_task("Urgent task", "", "urgent")
-    TaskService.add_task("Medium task", "", "medium")
-    TaskService.add_task("High task", "", "high")
+    TaskService.add_task("Low task", "", "low", "pending")
+    TaskService.add_task("Urgent task", "", "urgent", "pending")
+    TaskService.add_task("Medium task", "", "medium", "pending")
+    TaskService.add_task("High task", "", "high", "pending")
 
-    result = TaskService.sort_task_by_priority(TaskService.list_tasks())
+    result = TaskService.sort_task_by_priority()
 
     assert result[0].priority == "urgent"
     assert result[1].priority == "high"
@@ -324,12 +349,12 @@ def test_sort_task_by_priority_sorts_urgent_first():
 
 
 def test_sort_task_by_priority_and_due_date_sorts_priority_first_then_due_date():
-    TaskService.add_task("High later", "20-05-2026", "high")
-    TaskService.add_task("Urgent later", "30-05-2026", "urgent")
-    TaskService.add_task("Urgent earlier", "10-05-2026", "urgent")
-    TaskService.add_task("Low earlier", "01-05-2026", "low")
+    TaskService.add_task("High later", "20-05-2026", "high", "pending")
+    TaskService.add_task("Urgent later", "30-05-2026", "urgent", "pending")
+    TaskService.add_task("Urgent earlier", "10-05-2026", "urgent", "pending")
+    TaskService.add_task("Low earlier", "01-05-2026", "low", "pending")
 
-    result = TaskService.sort_task_by_priority_and_due_date(TaskService.list_tasks())
+    result = TaskService.sort_task_by_priority_and_due_date()
 
     assert result[0].title == "Urgent earlier"
     assert result[1].title == "Urgent later"

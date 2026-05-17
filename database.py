@@ -1,12 +1,14 @@
 from typing import Optional
 from sqlmodel import Field, SQLModel, create_engine
 
+from datetime import date
+
 class Task(SQLModel, table=True):
     __tablename__ = "tasks"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str = Field(nullable=False)
-    due_date: Optional[str] = Field(default=None)
+    due_date: Optional[date] = Field(default=None)
     status: str = Field(default="pending", nullable=False)
     priority: str = Field(nullable=False)
 

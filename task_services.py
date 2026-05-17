@@ -57,11 +57,8 @@ class TaskService:
         title = TaskService.validate_title(title)
         due_date = TaskService.parse_due_date(date_str)
         priority = TaskService.validate_priority(priority)
-
-        due_date_db = due_date.strftime(
-            "%Y-%m-%d") if due_date is not None else None
-
-        task = Task(title=title, due_date=due_date_db,
+        
+        task = Task(title=title, due_date=due_date,
                     status="pending", priority=priority)
 
         with Session(engine) as session:
@@ -130,9 +127,6 @@ class TaskService:
         priority = TaskService.validate_priority(priority)
         status = TaskService.validate_status(status)
 
-        due_date_db = due_date.strftime(
-            "%Y-%m-%d") if due_date is not None else None
-
         with Session(engine) as session:
             task = session.get(Task, task_id)
 
@@ -140,7 +134,7 @@ class TaskService:
                 raise ValueError(f"Task {task_id} not found")
 
             task.title = title
-            task.due_date = due_date_db
+            task.due_date = due_date
             task.priority = priority
             task.status = status
 
