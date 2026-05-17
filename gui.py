@@ -12,7 +12,7 @@ APP_NAME = "SerJusJer Task Cockpit"
 APP_SUBTITLE = "Small steps. Big projects."
 DAILY_MISSION = "Finish one important task before adding three new ones."
 
-PRIORITIES = ["low", "medium", "high"]
+PRIORITIES = ["low", "medium", "high", "urgent"]
 STATUSES = ["pending", "done"]
 
 
@@ -87,6 +87,7 @@ def calculate_task_stats(tasks: list[Task]) -> dict:
     done = sum(1 for task in tasks if task.status == "done")
     pending = total - done
     high_priority = sum(1 for task in tasks if task.priority == "high")
+    urgent_priority = sum(1 for task in tasks if task.priority == "urgent")
 
     completion = 0
     if total > 0:
@@ -97,6 +98,7 @@ def calculate_task_stats(tasks: list[Task]) -> dict:
         "done": done,
         "pending": pending,
         "high_priority": high_priority,
+        "urgent_priority": urgent_priority,
         "completion": completion,
     }
 
@@ -107,6 +109,8 @@ def get_cockpit_message(stats: dict) -> str:
         return "Your cockpit is clear. Add your first mission."
     if stats["completion"] == 100:
         return "Mission complete. Clean work."
+    if stats["urgent_priority"] > 0:
+        return "Urgent tasks detected. Focus mode recommended."
     if stats["high_priority"] > 0:
         return "High priority detected. Focus mode recommended."
     if stats["pending"] > stats["done"]:
@@ -187,8 +191,7 @@ def task_page():
                     ui.label("Open").classes("text-xs opacity-70")
 
                 with ui.card().classes("p-4 bg-white/10 rounded-xl shadow-none"):
-                    progress_label = ui.label(
-                        "0%").classes("text-2xl font-bold")
+                    progress_label = ui.label("0%").classes("text-2xl font-bold")
                     ui.label("Progress").classes("text-xs opacity-70")
 
             progress_bar = ui.linear_progress(value=0).classes("w-full mt-4")
@@ -203,6 +206,7 @@ def task_page():
             with ui.row().classes("w-full gap-4 items-end"):
                 title_input = ui.input("Title").classes("w-72")
                 date_input = ui.input("Due date (DD-MM-YYYY)").classes("w-52")
+
                 priority_select = ui.select(
                     PRIORITIES,
                     value="medium",
@@ -230,9 +234,12 @@ def task_page():
 
                     except ValueError as error:
                         ui.notify(str(error), type="negative")
+
                     except Exception as error:
                         ui.notify(
-                            f"Unexpected error: {error}", type="negative")
+                            f"Unexpected error: {error}",
+                            type="negative",
+                        )
 
                 ui.button(
                     "Add mission",
@@ -245,6 +252,7 @@ def task_page():
         # ----------------------------------------------------
 
         with ui.card().classes("w-full p-5 rounded-2xl shadow-md"):
+
             with ui.row().classes("w-full items-center justify-between"):
                 ui.label("Mission control").classes("text-xl font-semibold")
 
@@ -255,16 +263,77 @@ def task_page():
                 ).classes("w-48")
 
             with ui.row().classes("w-full gap-4 items-end mt-2"):
+
+                # ------------------------------------------------
+                # Edit / control inputs
+                # ------------------------------------------------
+
                 task_id_input = ui.number(
                     "Task ID",
                     min=1,
                     step=1,
                 ).classes("w-36")
 
+                edit_title_input = ui.input(
+                    "Edit title"
+                ).classes("w-72")
+
+                edit_date_input = ui.input(
+                    "Edit due date (DD-MM-YYYY)"
+                ).classes("w-52")
+
+                edit_priority_select = ui.select(
+                    PRIORITIES,
+                    value="medium",
+                    label="Edit priority",
+                ).classes("w-48")
+
+                edit_status_select = ui.select(
+                    STATUSES,
+                    value="pending",
+                    label="Edit status",
+                ).classes("w-48")
+
+                # ------------------------------------------------
+                # Button functions
+                # ------------------------------------------------
+
+                def edit_task():
+                    try:
+                        task_id = get_selected_task_id(task_id_input)
+
+                        TaskService.edit_task(
+                            task_id,
+                            edit_title_input.value,
+                            edit_date_input.value or "",
+                            edit_priority_select.value,
+                            edit_status_select.value,
+                        )
+
+                        ui.notify(
+                            "Mission updated.",
+                            type="positive",
+                        )
+
+                        refresh_table()
+
+                    except ValueError as error:
+                        ui.notify(str(error), type="negative")
+
+                    except Exception as error:
+                        ui.notify(
+                            f"Unexpected error: {error}",
+                            type="negative",
+                        )
+
                 def mark_done():
                     try:
                         task_id = get_selected_task_id(task_id_input)
-                        TaskService.update_task_status(task_id, "done")
+
+                        TaskService.update_task_status(
+                            task_id,
+                            "done",
+                        )
 
                         ui.notify(
                             "Mission marked as completed.",
@@ -275,14 +344,21 @@ def task_page():
 
                     except ValueError as error:
                         ui.notify(str(error), type="negative")
+
                     except Exception as error:
                         ui.notify(
-                            f"Unexpected error: {error}", type="negative")
+                            f"Unexpected error: {error}",
+                            type="negative",
+                        )
 
                 def mark_pending():
                     try:
                         task_id = get_selected_task_id(task_id_input)
-                        TaskService.update_task_status(task_id, "pending")
+
+                        TaskService.update_task_status(
+                            task_id,
+                            "pending",
+                        )
 
                         ui.notify(
                             "Mission moved back to pending.",
@@ -293,13 +369,17 @@ def task_page():
 
                     except ValueError as error:
                         ui.notify(str(error), type="negative")
+
                     except Exception as error:
                         ui.notify(
-                            f"Unexpected error: {error}", type="negative")
+                            f"Unexpected error: {error}",
+                            type="negative",
+                        )
 
                 def delete_task():
                     try:
                         task_id = get_selected_task_id(task_id_input)
+
                         TaskService.delete_task(task_id)
 
                         task_id_input.value = None
@@ -313,9 +393,22 @@ def task_page():
 
                     except ValueError as error:
                         ui.notify(str(error), type="negative")
+
                     except Exception as error:
                         ui.notify(
-                            f"Unexpected error: {error}", type="negative")
+                            f"Unexpected error: {error}",
+                            type="negative",
+                        )
+
+                # ------------------------------------------------
+                # Buttons
+                # ------------------------------------------------
+
+                ui.button(
+                    "Edit",
+                    on_click=edit_task,
+                    icon="edit",
+                ).classes("bg-purple-600 text-white")
 
                 ui.button(
                     "Done",
@@ -335,6 +428,10 @@ def task_page():
                     icon="delete",
                 ).classes("bg-red-600 text-white")
 
+            # ------------------------------------------------
+            # Table
+            # ------------------------------------------------
+
             table = ui.table(
                 columns=columns,
                 rows=[],
@@ -351,7 +448,11 @@ def task_page():
                     visible_tasks = get_visible_tasks(status_filter.value)
                     all_tasks = get_all_tasks()
 
-                    table.rows = [task_to_dict(task) for task in visible_tasks]
+                    table.rows = [
+                        task_to_dict(task)
+                        for task in visible_tasks
+                    ]
+
                     table.update()
 
                     stats = calculate_task_stats(all_tasks)
@@ -360,16 +461,23 @@ def task_page():
                     done_label.set_text(str(stats["done"]))
                     pending_label.set_text(str(stats["pending"]))
                     progress_label.set_text(f'{stats["completion"]}%')
-                    cockpit_badge.set_text(get_cockpit_message(stats))
+
+                    cockpit_badge.set_text(
+                        get_cockpit_message(stats)
+                    )
 
                     progress_bar.value = stats["completion"] / 100
                     progress_bar.update()
 
                 except Exception as error:
                     ui.notify(
-                        f"Could not refresh tasks: {error}", type="negative")
+                        f"Could not refresh tasks: {error}",
+                        type="negative",
+                    )
 
-            status_filter.on_value_change(lambda _: refresh_table())
+            status_filter.on_value_change(
+                lambda _: refresh_table()
+            )
 
             refresh_table()
 
@@ -378,11 +486,9 @@ def task_page():
         # ----------------------------------------------------
 
         with ui.row().classes("w-full justify-center mt-2"):
-            ui.label("SerJusJer Task Cockpit · Built with Python and NiceGUI").classes(
-                "text-xs text-slate-500"
-            )
-
-
+            ui.label(
+                "SerJusJer Task Cockpit · Built with Python and NiceGUI"
+            ).classes("text-xs text-slate-500")     
 # ------------------------------------------------------------
 # App start
 # ------------------------------------------------------------
