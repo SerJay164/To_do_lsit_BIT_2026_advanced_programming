@@ -175,3 +175,10 @@ class TaskService:
         with Session(engine) as session:
             statement = select(Task).where(Task.status == "done")
             return session.exec(statement).all()
+
+
+    @staticmethod
+    def filter_pending_task() -> list[Task]:
+        with Session(engine) as session:
+            statement = select(Task).where(Task.status == "pending")
+            return session.exec(statement).all()
