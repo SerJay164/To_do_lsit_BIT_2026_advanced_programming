@@ -109,7 +109,6 @@ The dashboard immediately displays all tasks. The student filters the list to sh
 ### Planned or Optional Improvements
 
 - Edit existing tasks directly from the GUI
-- Add task categories such as `School`, `Work`, or `Private`
 - Add an overdue task view
 - Add a search function
 - Add confirmation dialogs before deleting tasks
@@ -283,44 +282,52 @@ DAO classes for database operations
     v
 Persistence Layer
 SQLite database via SQLModel ORM
+```
 
-Presentation Layer
+### Presentation Layer
 
-The presentation layer is implemented with NiceGUI. It defines what the user sees in the browser: forms, buttons, task tables, dashboard cards, and notifications.
+The presentation layer is implemented with **NiceGUI**. It defines what the user sees in the browser: forms, buttons, task tables, dashboard cards, and notifications.
 
-The browser acts as a thin client. It renders the user interface, while the application logic remains on the Python server.
+The browser acts as a **thin client**. It renders the user interface, while the application logic remains on the Python server.
 
-Application Logic Layer
+### Application Logic Layer
 
 The application logic is implemented in service classes. This layer validates input, applies business rules, and coordinates task-related use cases.
 
 Examples:
 
-Validate task title
-Validate date format
-Validate priority
-Add a new task
-Mark a task as completed
-Mark a task as pending
-Delete a task
-Load filtered task lists
-Data Access Layer
+- Validate task title
+- Validate date format
+- Validate priority
+- Add a new task
+- Mark a task as completed
+- Mark a task as pending
+- Delete a task
+- Load filtered task lists
+
+### Data Access Layer
 
 The data access layer is responsible for storing and retrieving data from the database. The goal is to keep SQLModel and database-specific code away from the GUI and business logic.
 
 Examples:
 
-Create task
-Get all tasks
-Get task by ID
-Update task
-Delete task
-Persistence Layer
+- Create task
+- Get all tasks
+- Get task by ID
+- Update task
+- Delete task
 
-The persistence layer uses SQLite as a local database and SQLModel as the ORM. SQLModel maps Python classes to database tables and allows the application to work with Python objects instead of raw SQL strings.
+### Persistence Layer
 
-Project Structure
+The persistence layer uses **SQLite** as a local database and **SQLModel** as the ORM. SQLModel maps Python classes to database tables and allows the application to work with Python objects instead of raw SQL strings.
+
+---
+
+## Project Structure
+
 Intended final project structure:
+
+```text
 To_do_lsit_BIT_2026_advanced_programming/
 │
 ├── README.md
@@ -364,9 +371,13 @@ To_do_lsit_BIT_2026_advanced_programming/
         ├── dashboard.png
         ├── add_task.png
         └── task_table.png
+```
 
-Data Model
-Entity: Task
+---
+
+## Data Model
+
+### Entity: Task
 
 | Field      | Type            | Description                                      |
 | ---------- | --------------- | ------------------------------------------------ |
@@ -376,9 +387,13 @@ Entity: Task
 | `priority` | `str`           | Task priority: `low`, `medium`, `high`, `urgent` |
 | `status`   | `str`           | Task status: `pending` or `done`                 |
 
-ER Model
+---
+
+## ER Model
 
 Current simplified ER model:
+
+```text
 Task
 ----
 id          PK
@@ -386,8 +401,11 @@ title       TEXT
 due_date    TEXT / DATE
 priority    TEXT
 status      TEXT
+```
 
 Optional future extension:
+
+```text
 Category
 --------
 id          PK
@@ -401,8 +419,12 @@ due_date    TEXT / DATE
 priority    TEXT
 status      TEXT
 category_id FK -> Category.id
+```
 
-Technology Stack
+---
+
+## Technology Stack
+
 | Technology | Purpose                                           |
 | ---------- | ------------------------------------------------- |
 | Python     | Main programming language                         |
@@ -414,53 +436,86 @@ Technology Stack
 | pytest     | Automated testing framework                       |
 | GitHub     | Version control and team collaboration            |
 
-Design Patterns
-Layered Architecture
+---
+
+## Design Patterns
+
+### Layered Architecture
 
 The project separates responsibilities into presentation, application logic, data access, and persistence. This improves maintainability and makes it easier to test individual parts of the system.
 
-Model-View-Controller Inspired Structure
+### Model-View-Controller Inspired Structure
 
 The project uses an MVC-inspired structure:
 
-View: NiceGUI page components
-Controller: UI callbacks and event handlers
-Model: Task entity and database-backed domain objects
-Service: Application-specific business logic
+- **View:** NiceGUI page components
+- **Controller:** UI callbacks and event handlers
+- **Model:** Task entity and database-backed domain objects
+- **Service:** Application-specific business logic
 
 This keeps the GUI from becoming responsible for business rules.
 
-Data Access Object
+### Data Access Object
 
 The DAO pattern is used to separate database access from business logic. The service layer should not need to know how SQLModel queries are written internally.
 
-Facade
+### Facade
 
 The database setup can be treated as a small facade. A central database module provides simple functions for engine creation, table creation, and session handling.
 
-Installation
-1. Clone the Repository
+---
+
+## Installation
+
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/SerJay164/To_do_lsit_BIT_2026_advanced_programming.git
 cd To_do_lsit_BIT_2026_advanced_programming
+```
 
-2. Create a Virtual Environment
+### 2. Create a Virtual Environment
+
 Windows:
+
+```bash
 python -m venv .venv
+.\.venv\Scripts\activate
+```
+
 macOS / Linux:
-.venv\Scripts\activate
+
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
 
-3. Install Dependencies
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-How to Run the Application
-WELCHER BEFEHL FUNKTIONIERT BEI UNS -> ZU PRÜFEN
-...
+---
 
-Testing
+## How to Run the Application
+
+Start the application with:
+
+```bash
+python main.py
+```
+
+After starting the application, NiceGUI opens the app in the browser or provides a local URL in the terminal.
+
+> **Note:** WELCHER BEFEHL FUNKTIONIERT BEI UNS -> ZU PRÜFEN. If the final entry file is not `main.py`, this command must be adjusted to the actual file used in the final project version.
+
+---
+
+## Testing
 
 The project includes automated and documented tests. The target test mix follows the Advanced Programming expectations:
+
 | Test Type         | Number | Purpose                                                              |
 | ----------------- | -----: | -------------------------------------------------------------------- |
 | Unit Tests        |      6 | Test isolated service methods and validation logic                   |
@@ -468,13 +523,20 @@ The project includes automated and documented tests. The target test mix follows
 | Integration Tests |      3 | Test complete task flows across UI, service, and database boundaries |
 | Total             |     12 | Required project test coverage target                                |
 
-Run All Tests
+### Run All Tests
+
+```bash
 pytest
+```
 
-Run Tests Verbosely
+### Run Tests Verbosely
+
+```bash
 pytest -v
+```
 
-Planned Test Cases
+### Planned Test Cases
+
 | ID     | Test Type   | Description                                     |
 | ------ | ----------- | ----------------------------------------------- |
 | TC_001 | Unit        | Valid task title is accepted                    |
@@ -491,99 +553,135 @@ Planned Test Cases
 | TC_012 | Integration | User deletes task and list updates correctly    |
 
 Detailed manual and automated test cases are documented in:
+
+```text
 TESTCASES.md
+```
 
-or after moving documentation into the docs folder:
-docs/TESTCASES.md
+> **Note:** !!! ANZUPASSEN: Hier nur den Pfad stehen lassen, der bei uns wirklich existiert. Wenn am Ende TESTCASES.md. If the final test case documentation is moved into the `docs` folder, this path should be changed to `docs/TESTCASES.md`.
 
-!!! ANZUPASSEN: Hier nur den Pfad stehen lassen, der bei uns wirklich existiert. Wenn am Ende TESTCASES.md direkt im Hauptordner liegt, dann docs/TESTCASES.md löschen.
+---
 
-Input Validation
+## Input Validation
 
 The application validates user input before storing data.
 
-Title Validation
+### Title Validation
 
 Rules:
 
-Title must not be empty
-Title should not contain invalid separator characters
-Title should be stripped of unnecessary whitespace
-Date Validation
+- Title must not be empty.
+- Title should not contain invalid separator characters.
+- Title should be stripped of unnecessary whitespace.
+
+### Date Validation
 
 Rules:
 
-Empty due date is allowed
-Valid date format: DD-MM-YYYY
-Invalid dates are rejected
-Priority Validation
+- Empty due date is allowed.
+- Valid date format: `DD-MM-YYYY`
+- Invalid dates are rejected.
+
+### Priority Validation
 
 Allowed values:
-low
-medium
-high
-urgent
 
-ACHTUNG!! Wenn "urgent" in unserer GUI nicht funktioniert, dann entweder in der GUI ergänzen oder hier löschen. Wichtig: README, GUI, Service und Tests müssen übereinstimmen!!!
+- `low`
+- `medium`
+- `high`
+- `urgent`
 
-Status Validation
+### Status Validation
 
 Allowed values:
-pending
-done
 
-Error Handling
+- `pending`
+- `done`
+
+---
+
+## Error Handling
 
 The application aims to fail gracefully instead of crashing.
 
 Examples:
 
-Invalid user input is rejected with a clear message
-Missing or invalid task IDs are handled safely
-Database operations are handled through controlled service or DAO methods
-User feedback is shown through NiceGUI notifications
+- Invalid user input is rejected with a clear message.
+- Missing or invalid task IDs are handled safely.
+- Database operations are handled through controlled service or DAO methods.
+- User feedback is shown through NiceGUI notifications.
 
-Screenshots
-NOCH EINZUFÜGEN
+---
 
-Dashboard
-...
-Add Task Form
-...
-Task Table
-...
+## Screenshots
 
-Wireframes
-NOCH EINZUFÜGEN: aus Figma, draw.io, Excalidraw oder PowerPoint exportieren. Es soll zeigen, wie unsere App geplant ist.
+> **To be added:** Final screenshots should be inserted before submission.
+
+### Dashboard
+
+```text
+docs/screenshots/dashboard.png
+```
+
+### Add Task Form
+
+```text
+docs/screenshots/add_task.png
+```
+
+### Task Table
+
+```text
+docs/screenshots/task_table.png
+```
+
+---
+
+## Wireframes
+
+> **To be added:** Export the wireframes from Figma, draw.io, Excalidraw, PowerPoint, or another wireframing tool.
 
 The planned screen layout is documented in:
+
+```text
 docs/wireframes.png
+```
 
 Main screens:
+
 1. Dashboard overview
 2. Add task form
 3. Task table
 4. Task action section
 5. Optional edit dialog
 
-UML Class Diagram
-NOCH EINZUFÜGEN
+---
+
+## UML Class Diagram
+
+> **To be added:** The final UML class diagram should be inserted before submission.
 
 The UML class diagram is documented in:
+
+```text
 docs/uml_class_diagram.png
+```
 
 Main classes:
 
-Task
-TaskService
-TaskDAO
-Database
-TaskController
-TaskPage
+- `Task`
+- `TaskService`
+- `TaskDAO`
+- `Database`
+- `TaskController`
+- `TaskPage`
 
-Known Limitations
+---
+
+## Known Limitations
 
 Current known limitations:
+
 - The current version focuses on a single-user local task manager.
 - Authentication is not implemented.
 - Multi-user task separation is not implemented.
@@ -591,22 +689,29 @@ Current known limitations:
 - Advanced recurring tasks are not supported.
 - The edit function may still require final GUI integration.
 - The project structure may still need final refactoring into packages.
-NOCH ANZUPASSEN -> NICHTS ALS FERTIG DARSTELLEN, WAS NOCH NICHT WIRKLICH FUNKTIONIERT
 
-Team and Work Distribution
-| Team Member      | Main Responsibilities                            | GitHub Evidence                |
-| ---------------- | ------------------------------------------------ | ------------------------------ |
-| [Justin Vogler]  | GUI, testing, documentation, README         | Commits, branch, pull requests |
-| [Jeremy Heer]    | Database, SQLModel, presentation            | Commits, branch, pull requests |
-| [Seraph Schobin] | Service logic, testing, user interaction    | Commits, branch, pull requests |
+> **Note:** Before final submission, this section should be checked carefully. Nothing should be described as finished if it does not actually work in the final version.
+
+---
+
+## Team and Work Distribution
+
+| Team Member      | Main Responsibilities                         | GitHub Evidence                |
+| ---------------- | --------------------------------------------- | ------------------------------ |
+| Justin Vogler    | GUI, testing, documentation, README           | Commits, branch, pull requests |
+| Jeremy Heer      | Database, SQLModel, presentation              | Commits, branch, pull requests |
+| Seraphin Schobin | Service logic, testing, user interaction      | Commits, branch, pull requests |
 
 The team uses GitHub commits, branches, issues, and pull requests to document contributions.
 
-Project Management
+---
+
+## Project Management
 
 The project is organized through GitHub.
 
-Branch Strategy
+### Branch Strategy
+
 | Branch                 | Purpose                                |
 | ---------------------- | -------------------------------------- |
 | `main`                 | Stable version for final submission    |
@@ -615,32 +720,37 @@ Branch Strategy
 | `gui`                  | GUI development and layout experiments |
 | `experiments`          | Learning and technical experiments     |
 
-Before final submission, the stable implementation should be merged into main.
+Before final submission, the stable implementation should be merged into `main`.
 
-GitHub Issues
+### GitHub Issues
 
 Issues are used for:
 
-Feature planning
-Bug tracking
-Documentation tasks
-Test case tracking
-Refactoring tasks
+- Feature planning
+- Bug tracking
+- Documentation tasks
+- Test case tracking
+- Refactoring tasks
 
-Example issues: SCHAUEN OB DAS SO IST!
+Issues:
 
-Implement DAO layer
-Refactor GUI into UI package
-Fix pytest imports
-Add edit task dialog
-Write final README
-Add ERD and UML diagrams
-Prepare final presentation
+- Implement DAO layer
+- Refactor GUI into UI package
+- Fix pytest imports
+- Add edit task dialog
+- Write final README
+- Add ERD and UML diagrams
 
-Development Roadmap
-CHECK COMPLETETED, ALLES WIRKLICH UMGESETZT AM ENDE?
+> **Note:** Before final submission, check whether these issues actually exist in GitHub. If they do not exist, either create them or rewrite this section.
 
-Completed
+---
+
+## Development Roadmap
+
+> **Note:** Before final submission, check whether all items listed as completed are truly implemented and working.
+
+### Completed
+
 - Initial CLI-based to-do application
 - Migration concept to browser-based app
 - NiceGUI user interface prototype
@@ -649,14 +759,8 @@ Completed
 - Basic task service logic
 - Initial test case planning
 
-In Progress
-- Refactoring into layered architecture
-- Improving test coverage
-- Finalizing README documentation
-- Adding diagrams and screenshots
-- Merging stable branch into main
+### Planned
 
-Planned
 - Edit task dialog
 - Category support
 - Better dashboard statistics
@@ -664,28 +768,33 @@ Planned
 - Search functionality
 - Improved error handling
 - Final presentation and live demo preparation
-- Final Presentation Preparation
+
+---
+
+## Final Presentation Preparation
 
 The final presentation will cover:
 
 1. Justification of the chosen topic
-2. Project goals and core features
-3. Architecture and design decisions
-4. Database and ORM implementation
-5. Testing strategy and test results
-6. Team collaboration and work distribution
+2. Project goals
+3. Project features
+4. Division of work
+5. Highlights
+6. Challenges and lessons learned
 7. Live demo of the application
-8. Challenges and lessons learned
 
-presentation split:
-| Part                           | Responsible Person |
-| ------------------------------ | ------------------ |
-| Topic and problem statement    | [Jeremy]           |
-| Architecture and database      | [Seraphin]         |
-| GUI and live demo              | [Justin]           |
-| Testing and project management | [Seraphin]         |
+### Presentation Split
 
-How This Project Meets the Module Requirements
+| Part                             | Responsible Person |
+| -------------------------------- | ------------------ |
+| Topic, goals and features        | Jeremy             |
+| project management               | Justin             |
+| live demo                        | Seraphin           |
+
+---
+
+## How This Project Meets the Module Requirements
+
 | Requirement                 | Implementation                                |
 | --------------------------- | --------------------------------------------- |
 | Browser-based app           | Implemented with NiceGUI                      |
@@ -698,28 +807,38 @@ How This Project Meets the Module Requirements
 | Documentation               | README, TESTCASES, diagrams, screenshots      |
 | GitHub collaboration        | Branches, commits, issues, pull requests      |
 
-Future Improvements
+---
+
+## Future Improvements
 
 Possible future extensions:
 
-User login and user-specific task lists
-Task categories and tags
-Recurring tasks
-Calendar view
-Export tasks to CSV or PDF
-Dark mode / theme switch
-Deployment with Docker
-GitHub Actions for automated test execution
+- User login and user-specific task lists
+- Task categories and tags
+- Recurring tasks
+- Calendar view
+- Export tasks to CSV or PDF
+- Dark mode / theme switch
+- Deployment with Docker
+- GitHub Actions for automated test execution
 
-Authors / SerJusJer Team:
-Justin Vogler
-Jeremy Heer
-Seraphin Schobin
+---
 
-FHNW
-BSc Business Information Technology
-Advanced Programming
+## Authors
+
+### SerJusJer Team
+
+- Justin Vogler
+- Jeremy Heer
+- Seraphin Schobin
+
+FHNW  
+BSc Business Information Technology  
+Advanced Programming  
 Spring Semester 2026
 
-License
+---
+
+## License
+
 This project was created for educational purposes as part of the Advanced Programming module at FHNW.
