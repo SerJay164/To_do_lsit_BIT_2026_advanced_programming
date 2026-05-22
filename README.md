@@ -2,7 +2,7 @@
 
 A browser-based task management application developed for the **Advanced Programming** module at FHNW.
 
-SerJusJer Task Cockpit is a modern Python web application for creating, organizing, filtering, updating, and tracking personal tasks. The project is based on an earlier command-line to-do application and migrates it into a structured browser-based application with a graphical user interface, server-side application logic, and persistent database storage.
+SerJusJer Task Cockpit is a Python web application for creating, organizing, filtering, updating, and tracking personal tasks. The project is based on an earlier command-line to-do application and migrates it into a browser-based application with a graphical user interface, server-side application logic, and persistent database storage.
 
 ---
 
@@ -18,6 +18,7 @@ SerJusJer Task Cockpit is a modern Python web application for creating, organizi
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [Data Model](#data-model)
+- [ER Model](#er-model)
 - [Technology Stack](#technology-stack)
 - [Design Patterns](#design-patterns)
 - [Installation](#installation)
@@ -44,7 +45,7 @@ SerJusJer Task Cockpit is a modern Python web application for creating, organizi
 
 The goal of this project is to develop a browser-based task management application using Python, NiceGUI, SQLite, and SQLModel.
 
-The application allows users to manage their daily tasks in a simple but structured way. Tasks can be created with a title, due date, priority, and status. The user can view all tasks in a clean dashboard, filter tasks by status or priority, mark tasks as done or pending, and delete tasks that are no longer needed.
+The application allows users to manage daily tasks in a simple and structured way. Tasks can be created with a title, due date, priority, status, and notes. The user can view tasks in a browser-based dashboard, filter tasks, update task status, edit task information, delete tasks, and export tasks with due dates to a calendar file.
 
 The project follows the requirements of the Advanced Programming module:
 
@@ -63,7 +64,7 @@ The project follows the requirements of the Advanced Programming module:
 
 Many students and working professionals manage tasks across different tools, notes, messages, or memory. This often leads to forgotten deadlines, unclear priorities, and inefficient planning.
 
-SerJusJer Task Cockpit solves this problem by providing a simple task dashboard where tasks can be collected, prioritized, tracked, and completed in one place.
+SerJusJer Task Cockpit solves this problem by providing a simple task dashboard where tasks can be collected, prioritized, tracked, completed, and exported in one place.
 
 The application focuses on clarity and usability rather than feature overload. The user should immediately see what needs to be done, what is already completed, and which tasks are important.
 
@@ -84,9 +85,11 @@ The application is designed for:
 
 A student opens SerJusJer Task Cockpit in the browser before starting a study session.
 
-First, the student adds several tasks, such as preparing a presentation, writing test cases, and reviewing the project README. For each task, the student enters a title, an optional due date, and a priority.
+First, the student adds several tasks, such as preparing a presentation, writing test cases, and reviewing the project README. For each task, the student enters a title, an optional due date, a priority, and optional notes.
 
-The dashboard immediately displays all tasks. The student filters the list to show only pending tasks and focuses on the high-priority ones. After finishing a task, the student marks it as done. The application updates the task status and stores the change in the SQLite database, so the information is still available after restarting the application.
+The dashboard displays the tasks. The student filters the list to show only pending tasks and focuses on the high-priority ones. After finishing a task, the student marks it as done. The application updates the task status and stores the change in the SQLite database, so the information is still available after restarting the application.
+
+If the student wants to use the tasks in a calendar application, tasks with valid due dates can be exported as an `.ics` calendar file.
 
 ---
 
@@ -99,21 +102,28 @@ The dashboard immediately displays all tasks. The student filters the list to sh
 - Display tasks in a browser-based NiceGUI interface
 - Assign task priorities
 - Assign task status: `pending` or `done`
+- Add notes to tasks
 - Mark tasks as completed
 - Mark completed tasks as pending again
+- Edit existing tasks
 - Delete tasks
+- Filter tasks
+- Search tasks
+- Sort tasks
 - View task statistics in a dashboard
-- Filter or organize tasks by task state
 - Validate user input before saving tasks
+- Export tasks with due dates to an `.ics` calendar file
+- Automated tests for service logic and calendar export behavior
 
 ### Planned or Optional Improvements
 
-- Edit existing tasks directly from the GUI
-- Add an overdue task view
-- Add a search function
-- Add confirmation dialogs before deleting tasks
-- Add a more advanced dashboard with progress indicators
 - Add user login or simple user storage
+- Add task categories and tags
+- Add recurring tasks
+- Add a full calendar view inside the app
+- Add CSV or PDF export
+- Add deployment support with Docker
+- Add GitHub Actions for automated test execution
 
 ---
 
@@ -121,7 +131,7 @@ The dashboard immediately displays all tasks. The student filters the list to sh
 
 ### US_001 – Add a Task
 
-As a user, I want to create a new task with a title, due date, and priority, so that I can remember what needs to be done.
+As a user, I want to create a new task with a title, due date, priority, and notes, so that I can remember what needs to be done.
 
 ### US_002 – View All Tasks
 
@@ -147,6 +157,10 @@ As a user, I want my tasks to be saved automatically, so that they are still ava
 
 As a user, I want to see simple statistics about my tasks, so that I can quickly understand how many tasks are open, completed, or high priority.
 
+### US_008 – Export Tasks to Calendar
+
+As a user, I want to export tasks with due dates to a calendar file, so that I can use them in an external calendar application.
+
 ---
 
 ## Use Cases
@@ -161,10 +175,11 @@ As a user, I want to see simple statistics about my tasks, so that I can quickly
 1. The user enters a task title.
 2. The user optionally enters a due date.
 3. The user selects a priority.
-4. The user clicks the button to add the task.
-5. The system validates the input.
-6. The system stores the task in the database.
-7. The system refreshes the task list.
+4. The user optionally enters notes.
+5. The user clicks the button to add the task.
+6. The system validates the input.
+7. The system stores the task in the database.
+8. The system refreshes the task list.
 
 **Expected Result:**  
 A new pending task appears in the task overview.
@@ -194,7 +209,7 @@ The user sees all stored tasks or an empty task list.
 
 **Main Flow:**
 
-1. The user selects or enters the ID of a task.
+1. The user selects a pending task.
 2. The user triggers the complete action.
 3. The system updates the task status to `done`.
 4. The system saves the change in the database.
@@ -212,7 +227,7 @@ The task is shown as completed.
 
 **Main Flow:**
 
-1. The user selects or enters the ID of a completed task.
+1. The user selects a completed task.
 2. The user triggers the pending action.
 3. The system updates the task status to `pending`.
 4. The system saves the change in the database.
@@ -230,7 +245,7 @@ The task is shown as pending again.
 
 **Main Flow:**
 
-1. The user selects or enters the ID of a task.
+1. The user selects a task.
 2. The user triggers the delete action.
 3. The system removes the task from the database.
 4. The system refreshes the task list.
@@ -240,138 +255,215 @@ The deleted task no longer appears in the task overview.
 
 ---
 
-### UC_006 – Filter Tasks
+### UC_006 – Filter or Search Tasks
 
 **Actor:** User  
 **Precondition:** Tasks exist in the database.
 
 **Main Flow:**
 
-1. The user selects a status or priority filter.
-2. The system queries or filters the available tasks.
+1. The user selects a filter or enters a search term.
+2. The system filters the available tasks.
 3. The system updates the visible task list.
 
 **Expected Result:**  
-Only tasks matching the selected filter are displayed.
+Only tasks matching the selected filter or search term are displayed.
+
+---
+
+### UC_007 – Export Tasks to Calendar
+
+**Actor:** User  
+**Precondition:** At least one task with a valid due date exists.
+
+**Main Flow:**
+
+1. The user triggers the calendar export.
+2. The system selects tasks with valid due dates.
+3. The system creates calendar entries.
+4. The system writes the entries into an `.ics` file.
+
+**Expected Result:**  
+A calendar file is created and can be imported into a calendar application.
 
 ---
 
 ## Architecture
 
-The application follows a layered architecture inspired by the Advanced Programming reference project.
+The application uses a simplified layered architecture that reflects the actual implementation of the project.
 
 ```text
 Browser / Client
-    |
-    v
-Presentation Layer
-NiceGUI pages, layout, tables, forms, buttons
-    |
-    v
-Controller / UI Callback Layer
-Receives user events and calls application services
-    |
-    v
-Service Layer
-Business logic, validation, task operations
-    |
-    v
-Data Access Layer
-DAO classes for database operations
-    |
-    v
-Persistence Layer
-SQLite database via SQLModel ORM
+        |
+        v
+NiceGUI User Interface
+gui.py
+        |
+        v
+Application / Service Logic
+task_services.py
+        |
+        v
+Persistence and Domain Model
+database.py
+        |
+        v
+SQLite Database
+to_do.db
 ```
 
-### Presentation Layer
+Additional supporting functionality:
 
-The presentation layer is implemented with **NiceGUI**. It defines what the user sees in the browser: forms, buttons, task tables, dashboard cards, and notifications.
+```text
+calendar_export.py
+Exports tasks with valid due dates to an .ics calendar file
 
-The browser acts as a **thin client**. It renders the user interface, while the application logic remains on the Python server.
+tests/
+Contains automated tests for service logic and calendar export behavior
+```
 
-### Application Logic Layer
+### Browser / Client
 
-The application logic is implemented in service classes. This layer validates input, applies business rules, and coordinates task-related use cases.
+The browser is used as the visual interface for the user. It displays the NiceGUI components and sends user actions, such as button clicks or input changes, back to the Python application.
 
-Examples:
+The browser does not contain business logic and does not directly access the database. It acts as a thin client.
 
-- Validate task title
-- Validate date format
-- Validate priority
-- Add a new task
-- Mark a task as completed
-- Mark a task as pending
-- Delete a task
-- Load filtered task lists
+### Presentation Layer: `gui.py`
 
-### Data Access Layer
+The file `gui.py` contains the NiceGUI-based user interface.
 
-The data access layer is responsible for storing and retrieving data from the database. The goal is to keep SQLModel and database-specific code away from the GUI and business logic.
+Its main responsibilities are:
 
-Examples:
+- defining the visible page and UI components
+- displaying task information to the user
+- receiving user input
+- reacting to user actions through callbacks
+- calling the service functions from `task_services.py`
+- refreshing the displayed task list after changes
+- showing user notifications
+- starting the NiceGUI web application
 
-- Create task
-- Get all tasks
-- Get task by ID
-- Update task
-- Delete task
+The UI layer coordinates user interaction but does not directly define the database model.
 
-### Persistence Layer
+### Application / Service Logic Layer: `task_services.py`
 
-The persistence layer uses **SQLite** as a local database and **SQLModel** as the ORM. SQLModel maps Python classes to database tables and allows the application to work with Python objects instead of raw SQL strings.
+The file `task_services.py` contains the main application logic of the project.
+
+Its main responsibilities are:
+
+- validating task input
+- creating new tasks
+- updating existing tasks
+- deleting tasks
+- marking tasks as completed
+- setting completed tasks back to pending
+- filtering tasks
+- searching tasks
+- sorting tasks
+- coordinating task-related database operations
+
+In this project, `TaskService` acts as the central service layer. Because the project scope is relatively small, a separate DAO package was not implemented. Instead, the service layer directly works with SQLModel sessions and the `Task` model from `database.py`.
+
+This is a simplified but understandable architecture for the size of the project.
+
+### Persistence and Domain Layer: `database.py`
+
+The file `database.py` defines the database model and database setup.
+
+Its main responsibilities are:
+
+- defining the `Task` model with SQLModel
+- configuring the SQLite database connection
+- creating the database tables
+- providing the database engine used by the application
+
+The `Task` class represents the main domain object of the application. It is mapped to a database table through SQLModel.
+
+The project uses SQLite as a lightweight local database and SQLModel as Object-Relational Mapper. This means that tasks are handled as Python objects in the code while SQLModel manages the mapping to database rows.
+
+### Calendar Export: `calendar_export.py`
+
+The file `calendar_export.py` contains the logic for exporting tasks into an `.ics` calendar file.
+
+Its main responsibilities are:
+
+- selecting tasks that contain a valid due date
+- creating calendar-compatible event entries
+- writing these entries into an `.ics` file
+- skipping tasks without a valid due date
+
+This functionality is separated from the GUI and task service logic because exporting calendar files is a specific supporting feature.
+
+### Database Initialization Helper: `main.py`
+
+The file `main.py` is not the main entry point for running the full application.
+
+Its purpose is to initialize the database and create the required tables. It can be used as a helper script during setup or development.
+
+The actual application is started through `gui.py`.
+
+### Architectural Summary
+
+The final implementation uses the following file responsibilities:
+
+```text
+gui.py
+Presentation layer / NiceGUI user interface
+
+task_services.py
+Application logic and task operations
+
+database.py
+SQLModel task model and SQLite database setup
+
+calendar_export.py
+Calendar export functionality
+
+main.py
+Database initialization helper
+
+tests/
+Automated tests for service logic and export functionality
+```
+
+The project does not implement a full separate DAO package. Instead, it follows a simplified layered structure where `TaskService` combines business logic and task-related database access for the current project scope.
 
 ---
 
 ## Project Structure
 
-Intended final project structure:
+Actual project structure:
 
 ```text
 To_do_lsit_BIT_2026_advanced_programming/
 │
 ├── README.md
 ├── requirements.txt
+├── gui.py
 ├── main.py
-│
-├── todo_app/
-│   ├── __init__.py
-│   ├── application.py
-│   │
-│   ├── domain/
-│   │   ├── __init__.py
-│   │   └── models.py
-│   │
-│   ├── data_access/
-│   │   ├── __init__.py
-│   │   ├── database.py
-│   │   └── task_dao.py
-│   │
-│   ├── services/
-│   │   ├── __init__.py
-│   │   └── task_service.py
-│   │
-│   └── ui/
-│       ├── __init__.py
-│       ├── task_page.py
-│       └── task_controller.py
+├── database.py
+├── task_services.py
+├── calendar_export.py
 │
 ├── tests/
 │   ├── test_task_service.py
-│   ├── test_task_dao.py
-│   └── test_integration_task_flow.py
+│   └── test_calendar_export.py
 │
-└── docs/
-    ├── TESTCASES.md
-    ├── architecture.md
-    ├── erd.png
-    ├── uml_class_diagram.png
-    ├── wireframes.png
-    └── screenshots/
-        ├── dashboard.png
-        ├── add_task.png
-        └── task_table.png
+└── docs / images / additional project files
 ```
+
+### File Responsibilities
+
+| File / Folder | Responsibility |
+| ------------- | -------------- |
+| `gui.py` | NiceGUI user interface and application entry point |
+| `main.py` | Database initialization helper |
+| `database.py` | SQLModel `Task` model, database engine, and table creation |
+| `task_services.py` | Task validation, task operations, filtering, sorting, and database interaction |
+| `calendar_export.py` | Export of tasks with due dates to `.ics` calendar format |
+| `tests/` | Automated tests for service logic and calendar export |
+| `requirements.txt` | Python dependencies |
+| `README.md` | Project documentation |
 
 ---
 
@@ -379,13 +471,14 @@ To_do_lsit_BIT_2026_advanced_programming/
 
 ### Entity: Task
 
-| Field      | Type            | Description                                      |
-| ---------- | --------------- | ------------------------------------------------ |
-| `id`       | `int`           | Unique task identifier                           |
-| `title`    | `str`           | Short task description                           |
-| `due_date` | `date` or `str` | Optional due date                                |
-| `priority` | `str`           | Task priority: `low`, `medium`, `high`, `urgent` |
-| `status`   | `str`           | Task status: `pending` or `done`                 |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `id` | `int` | Unique task identifier |
+| `title` | `str` | Short task description |
+| `due_date` | `str` / date-like value | Optional due date |
+| `priority` | `str` | Task priority |
+| `status` | `str` | Task status: `pending` or `done` |
+| `notes` | `str` | Optional additional task information |
 
 ---
 
@@ -398,12 +491,15 @@ Task
 ----
 id          PK
 title       TEXT
-due_date    TEXT / DATE
+due_date    TEXT
 priority    TEXT
 status      TEXT
+notes       TEXT
 ```
 
-Optional future extension:
+The current version uses one central table because the project focuses on personal task management. A more complex version could add additional tables such as `Category`, `User`, or `Tag`.
+
+Possible future extension:
 
 ```text
 Category
@@ -415,9 +511,10 @@ Task
 ----
 id          PK
 title       TEXT
-due_date    TEXT / DATE
+due_date    TEXT
 priority    TEXT
 status      TEXT
+notes       TEXT
 category_id FK -> Category.id
 ```
 
@@ -425,43 +522,57 @@ category_id FK -> Category.id
 
 ## Technology Stack
 
-| Technology | Purpose                                           |
-| ---------- | ------------------------------------------------- |
-| Python     | Main programming language                         |
-| NiceGUI    | Browser-based user interface                      |
-| SQLite     | Local persistent database                         |
-| SQLModel   | ORM for mapping Python classes to database tables |
-| SQLAlchemy | Database engine used by SQLModel                  |
-| Pydantic   | Data validation support through SQLModel          |
-| pytest     | Automated testing framework                       |
-| GitHub     | Version control and team collaboration            |
+| Technology | Purpose |
+| ---------- | ------- |
+| Python | Main programming language |
+| NiceGUI | Browser-based user interface |
+| SQLite | Local persistent database |
+| SQLModel | ORM for mapping Python classes to database tables |
+| SQLAlchemy | Database engine used by SQLModel |
+| Pydantic | Data validation support through SQLModel |
+| pytest | Automated testing framework |
+| GitHub | Version control and team collaboration |
 
 ---
 
 ## Design Patterns
 
-### Layered Architecture
+### Simplified Layered Architecture
 
-The project separates responsibilities into presentation, application logic, data access, and persistence. This improves maintainability and makes it easier to test individual parts of the system.
+The project separates responsibilities into presentation, application logic, persistence, and testing.
 
-### Model-View-Controller Inspired Structure
+The implemented structure is:
+
+```text
+GUI -> Service Logic -> SQLModel Model / SQLite Database
+```
+
+This improves readability and makes the project easier to understand and test.
+
+### MVC-Inspired Structure
 
 The project uses an MVC-inspired structure:
 
-- **View:** NiceGUI page components
-- **Controller:** UI callbacks and event handlers
-- **Model:** Task entity and database-backed domain objects
-- **Service:** Application-specific business logic
+- **View:** NiceGUI components in `gui.py`
+- **Controller-like callbacks:** event handlers in `gui.py`
+- **Model:** `Task` model in `database.py`
+- **Service:** task-related business logic in `task_services.py`
 
-This keeps the GUI from becoming responsible for business rules.
+This is not a full MVC framework, but the responsibilities are separated in a similar way.
 
-### Data Access Object
+### ORM Pattern
 
-The DAO pattern is used to separate database access from business logic. The service layer should not need to know how SQLModel queries are written internally.
+The project uses SQLModel as an Object-Relational Mapper.
 
-### Facade
+This allows the application to work with Python objects instead of writing raw SQL queries manually. The `Task` class represents both a Python object and a database table.
 
-The database setup can be treated as a small facade. A central database module provides simple functions for engine creation, table creation, and session handling.
+### Facade-Like Database Setup
+
+The database setup in `database.py` works as a small facade for persistence-related setup. It provides a central place for database engine configuration and table creation.
+
+### DAO Consideration
+
+A separate DAO package was considered but not implemented as a separate layer. For this project size, database access is handled inside `TaskService`. In a larger version of the project, task-specific database operations could be moved into a dedicated `task_dao.py`.
 
 ---
 
@@ -500,28 +611,58 @@ pip install -r requirements.txt
 
 ## How to Run the Application
 
-Start the application with:
+The main application is started with `gui.py`.
+
+```bash
+python gui.py
+```
+
+After starting the application, NiceGUI runs a local web server. The terminal shows a local URL, usually similar to:
+
+```text
+http://localhost:8080
+```
+
+Open this URL in the browser to use the application.
+
+### Note About `main.py`
+
+The file `main.py` is not the main entry point for the user interface.
+
+It only initializes the database and creates the required tables:
 
 ```bash
 python main.py
 ```
 
-After starting the application, NiceGUI opens the app in the browser or provides a local URL in the terminal.
+To actually start and use the To-Do application, run:
 
-> **Note:** WELCHER BEFEHL FUNKTIONIERT BEI UNS -> ZU PRÜFEN. If the final entry file is not `main.py`, this command must be adjusted to the actual file used in the final project version.
+```bash
+python gui.py
+```
 
 ---
 
 ## Testing
 
-The project includes automated and documented tests. The target test mix follows the Advanced Programming expectations:
+The project includes automated tests. The target test mix follows the Advanced Programming expectations:
 
-| Test Type         | Number | Purpose                                                              |
-| ----------------- | -----: | -------------------------------------------------------------------- |
-| Unit Tests        |      6 | Test isolated service methods and validation logic                   |
-| Database Tests    |      3 | Test database persistence and DAO behavior                           |
-| Integration Tests |      3 | Test complete task flows across UI, service, and database boundaries |
-| Total             |     12 | Required project test coverage target                                |
+| Test Type | Target Number | Purpose |
+| --------- | ------------: | ------- |
+| Unit Tests | 6 | Test isolated service methods and validation logic |
+| Database Tests | 3 | Test persistence and database-related behavior |
+| Integration Tests | 3 | Test complete flows across service logic and persistence/export behavior |
+| Total | 12 | Required project test coverage target |
+
+The current test files are located in the `tests/` folder.
+
+### Existing Test Files
+
+```text
+tests/
+├── test_task_service.py
+└── test_calendar_export.py
+```
 
 ### Run All Tests
 
@@ -535,56 +676,43 @@ pytest
 pytest -v
 ```
 
-### Planned Test Cases
+### Test Cases
 
-| ID     | Test Type   | Description                                     |
-| ------ | ----------- | ----------------------------------------------- |
-| TC_001 | Unit        | Valid task title is accepted                    |
-| TC_002 | Unit        | Empty task title raises a validation error      |
-| TC_003 | Unit        | Invalid priority raises a validation error      |
-| TC_004 | Unit        | Valid due date is parsed correctly              |
-| TC_005 | Unit        | Invalid due date raises a validation error      |
-| TC_006 | Unit        | New task is created with status `pending`       |
-| TC_007 | DB          | Task is saved to SQLite database                |
-| TC_008 | DB          | Existing task can be loaded by ID               |
-| TC_009 | DB          | Deleted task is removed from database           |
-| TC_010 | Integration | User creates task and sees it in the task list  |
-| TC_011 | Integration | User marks task as done and status is persisted |
-| TC_012 | Integration | User deletes task and list updates correctly    |
-
-Detailed manual and automated test cases are documented in:
-
-```text
-TESTCASES.md
-```
-
-> **Note:** !!! ANZUPASSEN: Hier nur den Pfad stehen lassen, der bei uns wirklich existiert. Wenn am Ende TESTCASES.md. If the final test case documentation is moved into the `docs` folder, this path should be changed to `docs/TESTCASES.md`.
+| ID | Test Type | Description |
+| -- | --------- | ----------- |
+| TC_001 | Unit | Valid task title is accepted |
+| TC_002 | Unit | Empty task title raises a validation error |
+| TC_003 | Unit | Invalid priority raises a validation error |
+| TC_004 | Unit | Valid due date is parsed correctly |
+| TC_005 | Unit | Invalid due date raises a validation error |
+| TC_006 | Unit | New task is created with status `pending` |
+| TC_007 | Database | New task is persisted in the database |
+| TC_008 | Database | Existing task can be updated |
+| TC_009 | Database | Existing task can be deleted |
+| TC_010 | Integration | Complete task flow from creation to completion works |
+| TC_011 | Integration | Filtering or searching returns the expected tasks |
+| TC_012 | Integration | Calendar export creates an `.ics` file for tasks with valid due dates |
 
 ---
 
 ## Input Validation
 
-The application validates user input before storing data.
+The application validates user input before storing tasks.
 
 ### Title Validation
 
-Rules:
-
-- Title must not be empty.
-- Title should not contain invalid separator characters.
-- Title should be stripped of unnecessary whitespace.
+- The title must not be empty.
+- The title should describe the task clearly.
 
 ### Date Validation
 
-Rules:
-
-- Empty due date is allowed.
-- Valid date format: `DD-MM-YYYY`
-- Invalid dates are rejected.
+- Due dates must follow the expected date format.
+- Empty due dates are allowed.
+- Invalid dates should not be saved as valid due dates.
 
 ### Priority Validation
 
-Allowed values:
+Accepted priority values are limited to predefined options, such as:
 
 - `low`
 - `medium`
@@ -593,7 +721,7 @@ Allowed values:
 
 ### Status Validation
 
-Allowed values:
+Accepted status values are:
 
 - `pending`
 - `done`
@@ -602,20 +730,21 @@ Allowed values:
 
 ## Error Handling
 
-The application aims to fail gracefully instead of crashing.
+The project uses validation and exception handling to avoid crashes and invalid data.
 
 Examples:
 
-- Invalid user input is rejected with a clear message.
-- Missing or invalid task IDs are handled safely.
-- Database operations are handled through controlled service or DAO methods.
-- User feedback is shown through NiceGUI notifications.
+- Empty task titles are rejected.
+- Invalid due dates are handled before saving.
+- Invalid priorities or statuses are rejected.
+- Database operations are handled through SQLModel sessions.
+- Calendar export skips tasks without valid due dates.
 
 ---
 
 ## Screenshots
 
-> **To be added:** Final screenshots should be inserted before submission.
+Screenshots should be added to the repository to document the final user interface.
 
 ### Dashboard
 
@@ -639,188 +768,238 @@ docs/screenshots/task_table.png
 
 ## Wireframes
 
-> **To be added:** Export the wireframes from Figma, draw.io, Excalidraw, PowerPoint, or another wireframing tool.
-
-The planned screen layout is documented in:
+The planned interface follows a simple dashboard structure:
 
 ```text
-docs/wireframes.png
++--------------------------------------------------+
+| SerJusJer Task Cockpit                           |
++--------------------------------------------------+
+| Add Task Form                                    |
+| Title | Due Date | Priority | Notes | Add Button |
++--------------------------------------------------+
+| Filters / Search                                 |
++--------------------------------------------------+
+| Task List                                        |
+| Task | Due Date | Priority | Status | Actions    |
++--------------------------------------------------+
+| Statistics                                       |
+| Pending | Done | Total | High Priority          |
++--------------------------------------------------+
 ```
-
-Main screens:
-
-1. Dashboard overview
-2. Add task form
-3. Task table
-4. Task action section
-5. Optional edit dialog
 
 ---
 
 ## UML Class Diagram
 
-> **To be added:** The final UML class diagram should be inserted before submission.
-
-The UML class diagram is documented in:
+Simplified UML-style overview:
 
 ```text
-docs/uml_class_diagram.png
++----------------+
+| Task           |
++----------------+
+| id             |
+| title          |
+| due_date       |
+| priority       |
+| status         |
+| notes          |
++----------------+
+
++----------------+
+| TaskService    |
++----------------+
+| validate input |
+| create task    |
+| update task    |
+| delete task    |
+| filter tasks   |
+| sort tasks     |
+| search tasks   |
++----------------+
+
++--------------------+
+| Calendar Export    |
++--------------------+
+| export_to_ics      |
+| skip invalid dates |
++--------------------+
 ```
-
-Main classes:
-
-- `Task`
-- `TaskService`
-- `TaskDAO`
-- `Database`
-- `TaskController`
-- `TaskPage`
 
 ---
 
 ## Known Limitations
 
-Current known limitations:
+The current version is intentionally kept simple for the module project scope.
 
-- The current version focuses on a single-user local task manager.
-- Authentication is not implemented.
-- Multi-user task separation is not implemented.
-- Task categories are optional and may be added later.
-- Advanced recurring tasks are not supported.
-- The edit function may still require final GUI integration.
-- The project structure may still need final refactoring into packages.
+Known limitations:
 
-> **Note:** Before final submission, this section should be checked carefully. Nothing should be described as finished if it does not actually work in the final version.
+- No user login or authentication
+- No multi-user support
+- SQLite database is local
+- No separate DAO package
+- No cloud deployment
+- No full calendar view inside the app
+- No recurring tasks
+- No category or tag system
+- No role-based access control
+- GUI tests are not fully automated with browser automation tools
+
+These limitations are acceptable for the current project scope but provide clear directions for future development.
 
 ---
 
 ## Team and Work Distribution
 
-| Team Member      | Main Responsibilities                         | GitHub Evidence                |
-| ---------------- | --------------------------------------------- | ------------------------------ |
-| Justin Vogler    | GUI, testing, documentation, README           | Commits, branch, pull requests |
-| Jeremy Heer      | Database, SQLModel, presentation              | Commits, branch, pull requests |
-| Seraphin Schobin | Service logic, testing, user interaction      | Commits, branch, pull requests |
+### Justin Vogler
 
-The team uses GitHub commits, branches, issues, and pull requests to document contributions.
+Main responsibilities:
+
+- GitHub repository setup and collaboration support
+- README and documentation work
+- Project structure and cleanup
+- Support with presentation preparation
+- Testing and review support
+
+### Jeremy Heer
+
+Main responsibilities:
+
+- GUI development with NiceGUI
+- Task dashboard and user interaction
+- Input forms and visual layout
+- User interface improvements
+- Live demo preparation
+
+### Seraphin Schobin
+
+Main responsibilities:
+
+- Task logic and service functions
+- Database setup with SQLModel and SQLite
+- Calendar export functionality
+- Automated tests
+- Technical validation and debugging
 
 ---
 
 ## Project Management
 
-The project is organized through GitHub.
+The project was managed using GitHub and regular team coordination.
 
 ### Branch Strategy
 
-| Branch                 | Purpose                                |
-| ---------------------- | -------------------------------------- |
-| `main`                 | Stable version for final submission    |
-| `sql-database`         | Database and NiceGUI implementation    |
-| `feature/task-service` | Service logic and test development     |
-| `gui`                  | GUI development and layout experiments |
-| `experiments`          | Learning and technical experiments     |
+The team used branches to separate work on different parts of the application.
 
-Before final submission, the stable implementation should be merged into `main`.
+Examples:
+
+- feature branches for GUI development
+- feature branches for service logic
+- feature branches for README and documentation
+- final branch or main branch for the final submission version
+
+Before final submission, the relevant final code should be available on the submitted GitHub branch.
 
 ### GitHub Issues
 
-Issues are used for:
+GitHub issues can be used to track tasks such as:
 
-- Feature planning
-- Bug tracking
-- Documentation tasks
-- Test case tracking
-- Refactoring tasks
-
-Issues:
-
-- Implement DAO layer
-- Refactor GUI into UI package
-- Fix pytest imports
-- Add edit task dialog
-- Write final README
-- Add ERD and UML diagrams
-
-> **Note:** Before final submission, check whether these issues actually exist in GitHub. If they do not exist, either create them or rewrite this section.
+- Implement task creation
+- Implement database persistence
+- Implement task filtering
+- Implement calendar export
+- Add automated tests
+- Improve README
+- Prepare final presentation
+- Clean repository before submission
 
 ---
 
 ## Development Roadmap
 
-> **Note:** Before final submission, check whether all items listed as completed are truly implemented and working.
-
 ### Completed
 
-- Initial CLI-based to-do application
-- Migration concept to browser-based app
-- NiceGUI user interface prototype
-- SQLite database integration
-- SQLModel-based task entity
-- Basic task service logic
-- Initial test case planning
+- Migration from CLI idea to browser-based application
+- NiceGUI user interface
+- SQLite database setup
+- SQLModel task model
+- Task creation
+- Task display
+- Task editing
+- Task deletion
+- Task status updates
+- Filtering, searching, and sorting
+- Calendar export
+- Automated tests
+- README documentation
 
 ### Planned
 
-- Edit task dialog
-- Category support
-- Better dashboard statistics
-- Overdue task view
-- Search functionality
-- Improved error handling
-- Final presentation and live demo preparation
+- Add login or user storage
+- Add task categories
+- Add recurring tasks
+- Add a full calendar view
+- Add CSV or PDF export
+- Add Docker deployment
+- Add GitHub Actions for automated test runs
 
 ---
 
 ## Final Presentation Preparation
 
-The final presentation will cover:
+The final presentation should cover:
 
 1. Justification of the chosen topic
-2. Project goals
-3. Project features
-4. Division of work
-5. Highlights
-6. Challenges and lessons learned
-7. Live demo of the application
+2. Project goals and features
+3. Architecture and file responsibilities
+4. Database model and ORM usage
+5. Testing strategy and test results
+6. Project management and work distribution
+7. Highlights and challenges
+8. Live demo of the application
+9. Q&A
 
 ### Presentation Split
 
-| Part                             | Responsible Person |
-| -------------------------------- | ------------------ |
-| Topic, goals and features        | Jeremy             |
-| project management               | Justin             |
-| live demo                        | Seraphin           |
+Suggested split:
+
+- **Justin:** project idea, README, project management, documentation
+- **Jeremy:** GUI, user interaction, live demo
+- **Seraphin:** database, service logic, tests, calendar export
 
 ---
 
 ## How This Project Meets the Module Requirements
 
-| Requirement                 | Implementation                                |
-| --------------------------- | --------------------------------------------- |
-| Browser-based app           | Implemented with NiceGUI                      |
-| Frontend                    | NiceGUI UI components rendered in the browser |
-| Backend / application logic | Python service layer                          |
-| Database                    | SQLite                                        |
-| ORM                         | SQLModel                                      |
-| Object orientation          | Task entity, service classes, DAO classes     |
-| Testing                     | pytest-based unit, DB, and integration tests  |
-| Documentation               | README, TESTCASES, diagrams, screenshots      |
-| GitHub collaboration        | Branches, commits, issues, pull requests      |
+| Requirement | Implementation |
+| ----------- | -------------- |
+| Browser-based app | Implemented with NiceGUI |
+| Frontend | NiceGUI components rendered in the browser |
+| Backend / server-side logic | Python logic in `gui.py` and `task_services.py` |
+| Persistence | SQLite database |
+| ORM | SQLModel |
+| Object-oriented programming | `Task` model and `TaskService` class |
+| Testing | pytest tests in `tests/` |
+| Documentation | README with user stories, use cases, architecture, and test overview |
+| GitHub collaboration | Repository with team contributions |
+
+The application follows the main module idea: the browser is the user-facing client, while the application logic and data handling remain on the Python server side.
 
 ---
 
 ## Future Improvements
 
-Possible future extensions:
+Possible future improvements include:
 
-- User login and user-specific task lists
+- User accounts
+- User-specific task lists
 - Task categories and tags
 - Recurring tasks
-- Calendar view
+- Full calendar view
 - Export tasks to CSV or PDF
-- Dark mode / theme switch
+- Dark mode or theme switch
 - Deployment with Docker
 - GitHub Actions for automated test execution
+- More advanced browser-based end-to-end tests
 
 ---
 
