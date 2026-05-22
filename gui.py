@@ -377,13 +377,3 @@ def task_page():
             ui.label(
                 "SerJusJer Task Cockpit · Built with Python and NiceGUI"
             ).classes("text-xs text-slate-500")
-
-
-# ------------------------------------------------------------
-# App start
-# ------------------------------------------------------------
-
-ui.run(
-    title=APP_NAME,
-    reload=False,
-)
