@@ -744,25 +744,19 @@ Examples:
 
 ## Screenshots
 
-Screenshots should be added to the repository to document the final user interface.
+The following screenshots document the final user interface of the application.
 
 ### Dashboard
 
-```text
-docs/screenshots/dashboard.png
-```
+![Dashboard](docs/screenshots/dashboard.png)
 
 ### Add Task Form
 
-```text
-docs/screenshots/add_task.png
-```
+![Add Task Form](docs/screenshots/add_task.png)
 
 ### Task Table
 
-```text
-docs/screenshots/task_table.png
-```
+![Task Table](docs/screenshots/task_table.png)
 
 ---
 
