@@ -746,17 +746,7 @@ Examples:
 
 The following screenshots document the final user interface of the application.
 
-### Dashboard
-
 ![Dashboard](docs/screenshots/dashboard.png)
-
-### Add Task Form
-
-![Add Task Form](docs/screenshots/add_task.png)
-
-### Task Table
-
-![Task Table](docs/screenshots/task_table.png)
 
 ---
 
