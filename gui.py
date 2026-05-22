@@ -9,7 +9,7 @@ from calendar_export import export_tasks_to_ics
 # App configuration
 # ------------------------------------------------------------
 
-APP_NAME = "SerJusJer Task Cockpit"
+APP_NAME = "SerJusJer Task Cockpit" 
 APP_SUBTITLE = "Small steps. Big projects."
 DAILY_MISSION = "Finish one important task before adding three new ones."
 
@@ -372,7 +372,7 @@ def task_page():
 
             refresh_table()
 
-        # Footer
+        # Footer 
         with ui.row().classes("w-full justify-center mt-2"):
             ui.label(
                 "SerJusJer Task Cockpit · Built with Python and NiceGUI"
