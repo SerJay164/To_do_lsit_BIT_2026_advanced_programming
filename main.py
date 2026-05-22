@@ -1,7 +1,16 @@
-from database import create_tables
+from nicegui import ui
+
+import gui
+from gui import APP_NAME
 
 
-create_tables()
+def main():
+    ui.run(
+        title=APP_NAME,
+        reload=False,
+    )
 
-print("Database initialized")
+
+if __name__ == "__main__":
+    main()
 
