@@ -1,4 +1,4 @@
-# SerJusJer Task Cockpit
+# SerJusJer Task Cockpit - To-Do Web App
 
 A browser-based task management application developed for the **Advanced Programming** module at FHNW.
 
