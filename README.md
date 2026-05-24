@@ -338,7 +338,6 @@ Its main responsibilities are:
 - calling the service functions from `task_services.py`
 - refreshing the displayed task list after changes
 - showing user notifications
-- starting the NiceGUI web application
 
 The UI layer coordinates user interaction but does not directly define the database model.
 
