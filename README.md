@@ -390,13 +390,13 @@ Its main responsibilities are:
 
 This functionality is separated from the GUI and task service logic because exporting calendar files is a specific supporting feature.
 
-### Database Initialization Helper: `main.py`
+### Application Entry Point: `main.py`
 
-The file `main.py` is not the main entry point for running the full application.
+The file `main.py` is the entry point for running the application.
+It imports `gui.py`, which defines the NiceGUI user interface and application pages.
+After importing the GUI, `main.py` starts the NiceGUI web server with `ui.run()`.
 
-Its purpose is to initialize the database and create the required tables. It can be used as a helper script during setup or development.
-
-The actual application is started through `gui.py`.
+This keeps the application startup separate from the user interface definition.
 
 ### Architectural Summary
 
@@ -415,8 +415,8 @@ SQLModel task model and SQLite database setup
 calendar_export.py
 Calendar export functionality
 
-main.py
-Database initialization helper
+main.py            
+Application entry point that starts the NiceGUI server
 
 tests/
 Automated tests for service logic and export functionality
@@ -452,8 +452,8 @@ To_do_lsit_BIT_2026_advanced_programming/
 
 | File / Folder | Responsibility |
 | ------------- | -------------- |
-| `gui.py` | NiceGUI user interface and application entry point |
-| `main.py` | Database initialization helper |
+| `gui.py` | NiceGUI user interface, page layout, callbacks, and user interaction |
+| `main.py` | Application entry point that imports the GUI and starts the NiceGUI server |
 | `database.py` | SQLModel `Task` model, database engine, and table creation |
 | `task_services.py` | Task validation, task operations, filtering, sorting, and database interaction |
 | `calendar_export.py` | Export of tasks with due dates to `.ics` calendar format |
@@ -604,11 +604,13 @@ pip install -r requirements.txt
 
 ## How to Run the Application
 
-The main application is started with `main.py`.
+The application is started with `main.py`.
 
 ```bash
 python main.py
 ```
+
+`main.py` imports the NiceGUI interface from `gui.py` and starts the local NiceGUI web server.
 
 After starting the application, NiceGUI runs a local web server. The terminal shows a local URL, usually similar to:
 
