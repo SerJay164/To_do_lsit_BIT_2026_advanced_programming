@@ -45,7 +45,7 @@ SerJusJer Task Cockpit is a Python web application for creating, organizing, fil
 
 The goal of this project is to develop a browser-based task management application using Python, NiceGUI, SQLite, and SQLModel.
 
-The application allows users to manage daily tasks in a simple and structured way. Tasks can be created with a title, due date, priority, status, and notes. The user can view tasks in a browser-based dashboard, filter tasks, update task status, edit task information, delete tasks, and export tasks with due dates to a calendar file.
+The application allows users to manage daily tasks in a simple and structured way. Tasks can be created with a title, due date, priority, and status. The user can view tasks in a browser-based dashboard, filter tasks, update task status, edit task information, delete tasks, and export tasks with due dates to a calendar file.
 
 The project follows the requirements of the Advanced Programming module:
 
@@ -62,7 +62,7 @@ The project follows the requirements of the Advanced Programming module:
 
 ## Problem Statement
 
-Many students and working professionals manage tasks across different tools, notes, messages, or memory. This often leads to forgotten deadlines, unclear priorities, and inefficient planning.
+Many students and working professionals manage tasks across different tools, messages, or memory. This often leads to forgotten deadlines, unclear priorities, and inefficient planning.
 
 SerJusJer Task Cockpit solves this problem by providing a simple task dashboard where tasks can be collected, prioritized, tracked, completed, and exported in one place.
 
@@ -85,7 +85,7 @@ The application is designed for:
 
 A student opens SerJusJer Task Cockpit in the browser before starting a study session.
 
-First, the student adds several tasks, such as preparing a presentation, writing test cases, and reviewing the project README. For each task, the student enters a title, an optional due date, a priority, and optional notes.
+First, the student adds several tasks, such as preparing a presentation, writing test cases, and reviewing the project README. For each task, the student enters a title, an optional due date and a priority.
 
 The dashboard displays the tasks. The student filters the list to show only pending tasks and focuses on the high-priority ones. After finishing a task, the student marks it as done. The application updates the task status and stores the change in the SQLite database, so the information is still available after restarting the application.
 
@@ -102,13 +102,11 @@ If the student wants to use the tasks in a calendar application, tasks with vali
 - Display tasks in a browser-based NiceGUI interface
 - Assign task priorities
 - Assign task status: `pending` or `done`
-- Add notes to tasks
 - Mark tasks as completed
 - Mark completed tasks as pending again
 - Edit existing tasks
 - Delete tasks
 - Filter tasks
-- Search tasks
 - Sort tasks
 - View task statistics in a dashboard
 - Validate user input before saving tasks
@@ -131,7 +129,7 @@ If the student wants to use the tasks in a calendar application, tasks with vali
 
 ### US_001 – Add a Task
 
-As a user, I want to create a new task with a title, due date, priority, and notes, so that I can remember what needs to be done.
+As a user, I want to create a new task with a title, due date, and priority, so that I can remember what needs to be done.
 
 ### US_002 – View All Tasks
 
@@ -175,11 +173,10 @@ As a user, I want to export tasks with due dates to a calendar file, so that I c
 1. The user enters a task title.
 2. The user optionally enters a due date.
 3. The user selects a priority.
-4. The user optionally enters notes.
-5. The user clicks the button to add the task.
-6. The system validates the input.
-7. The system stores the task in the database.
-8. The system refreshes the task list.
+4. The user clicks the button to add the task.
+5. The system validates the input.
+6. The system stores the task in the database.
+7. The system refreshes the task list.
 
 **Expected Result:**  
 A new pending task appears in the task overview.
@@ -255,19 +252,19 @@ The deleted task no longer appears in the task overview.
 
 ---
 
-### UC_006 – Filter or Search Tasks
+### UC_006 – Filter Tasks
 
 **Actor:** User  
 **Precondition:** Tasks exist in the database.
 
 **Main Flow:**
 
-1. The user selects a filter or enters a search term.
+1. The user selects a filter term.
 2. The system filters the available tasks.
 3. The system updates the visible task list.
 
 **Expected Result:**  
-Only tasks matching the selected filter or search term are displayed.
+Only tasks matching the selected filter are displayed.
 
 ---
 
@@ -358,7 +355,6 @@ Its main responsibilities are:
 - marking tasks as completed
 - setting completed tasks back to pending
 - filtering tasks
-- searching tasks
 - sorting tasks
 - coordinating task-related database operations
 
@@ -478,7 +474,6 @@ To_do_lsit_BIT_2026_advanced_programming/
 | `due_date` | `str` / date-like value | Optional due date |
 | `priority` | `str` | Task priority |
 | `status` | `str` | Task status: `pending` or `done` |
-| `notes` | `str` | Optional additional task information |
 
 ---
 
@@ -494,7 +489,6 @@ title       TEXT
 due_date    TEXT
 priority    TEXT
 status      TEXT
-notes       TEXT
 ```
 
 The current version uses one central table because the project focuses on personal task management. A more complex version could add additional tables such as `Category`, `User`, or `Tag`.
@@ -514,7 +508,6 @@ title       TEXT
 due_date    TEXT
 priority    TEXT
 status      TEXT
-notes       TEXT
 category_id FK -> Category.id
 ```
 
@@ -611,10 +604,10 @@ pip install -r requirements.txt
 
 ## How to Run the Application
 
-The main application is started with `gui.py`.
+The main application is started with `main.py`.
 
 ```bash
-python gui.py
+python main.py
 ```
 
 After starting the application, NiceGUI runs a local web server. The terminal shows a local URL, usually similar to:
@@ -623,40 +616,22 @@ After starting the application, NiceGUI runs a local web server. The terminal sh
 http://localhost:8080
 ```
 
-Open this URL in the browser to use the application.
-
-### Note About `main.py`
-
-The file `main.py` is not the main entry point for the user interface.
-
-It only initializes the database and creates the required tables:
-
-```bash
-python main.py
-```
-
-To actually start and use the To-Do application, run:
-
-```bash
-python gui.py
-```
-
 ---
 
 ## Testing
 
-The project includes automated tests. The target test mix follows the Advanced Programming expectations:
+The project includes automated tests written with `pytest`.
 
-| Test Type | Target Number | Purpose |
-| --------- | ------------: | ------- |
-| Unit Tests | 6 | Test isolated service methods and validation logic |
-| Database Tests | 3 | Test persistence and database-related behavior |
-| Integration Tests | 3 | Test complete flows across service logic and persistence/export behavior |
-| Total | 12 | Required project test coverage target |
+The implemented test mix follows the expected structure for the Advanced Programming project:
 
-The current test files are located in the `tests/` folder.
+| Test Type | Number | Purpose |
+|---|---:|---|
+| Unit Tests | 6 | Test isolated validation and parsing methods in the service layer |
+| Database Tests | 3 | Test persistence-related CRUD behavior with a temporary SQLite database |
+| Integration Tests | 3 | Test the interaction between task data and calendar export functionality |
+| Total | 12 | Automated tests included in the project |
 
-### Existing Test Files
+The current test files are located in the `tests/` folder:
 
 ```text
 tests/
@@ -679,54 +654,32 @@ pytest -v
 ### Test Cases
 
 | ID | Test Type | Description |
-| -- | --------- | ----------- |
-| TC_001 | Unit | Valid task title is accepted |
+|---|---|---|
+| TC_001 | Unit | Valid task title is stripped and accepted |
 | TC_002 | Unit | Empty task title raises a validation error |
-| TC_003 | Unit | Invalid priority raises a validation error |
-| TC_004 | Unit | Valid due date is parsed correctly |
-| TC_005 | Unit | Invalid due date raises a validation error |
-| TC_006 | Unit | New task is created with status `pending` |
-| TC_007 | Database | New task is persisted in the database |
-| TC_008 | Database | Existing task can be updated |
-| TC_009 | Database | Existing task can be deleted |
-| TC_010 | Integration | Complete task flow from creation to completion works |
-| TC_011 | Integration | Filtering or searching returns the expected tasks |
-| TC_012 | Integration | Calendar export creates an `.ics` file for tasks with valid due dates |
+| TC_003 | Unit | Valid due date is parsed correctly |
+| TC_004 | Unit | Invalid due date format raises a validation error |
+| TC_005 | Unit | Valid priority value is accepted and normalized |
+| TC_006 | Unit | Invalid status value raises a validation error |
+| TC_007 | Database | New task is saved and persisted in the database |
+| TC_008 | Database | Existing task can be edited and updated in the database |
+| TC_009 | Database | Existing task can be deleted from the database |
+| TC_010 | Integration | Calendar export creates an `.ics` file from stored task data |
+| TC_011 | Integration | Calendar export contains the expected task information |
+| TC_012 | Integration | Calendar export skips tasks without a due date |
 
----
+### Testing Scope
 
-## Input Validation
+The automated tests focus on the most important non-visual parts of the application:
 
-The application validates user input before storing tasks.
+- input validation in the service layer
+- date parsing
+- priority and status validation
+- task creation, editing and deletion
+- database persistence using a temporary SQLite test database
+- calendar export to `.ics`
 
-### Title Validation
-
-- The title must not be empty.
-- The title should describe the task clearly.
-
-### Date Validation
-
-- Due dates must follow the expected date format.
-- Empty due dates are allowed.
-- Invalid dates should not be saved as valid due dates.
-
-### Priority Validation
-
-Accepted priority values are limited to predefined options, such as:
-
-- `low`
-- `medium`
-- `high`
-- `urgent`
-
-### Status Validation
-
-Accepted status values are:
-
-- `pending`
-- `done`
-
----
+The graphical user interface itself is tested manually through the browser during development and the live demo. Full browser-based end-to-end tests with tools such as Selenium or Playwright are not included in the current project scope.
 
 ## Error Handling
 
@@ -759,15 +712,15 @@ The planned interface follows a simple dashboard structure:
 | SerJusJer Task Cockpit                           |
 +--------------------------------------------------+
 | Add Task Form                                    |
-| Title | Due Date | Priority | Notes | Add Button |
+| Title   | Due Date   | Priority   |   Add Button |
 +--------------------------------------------------+
-| Filters / Search                                 |
+| Filters                                          |
 +--------------------------------------------------+
 | Task List                                        |
 | Task | Due Date | Priority | Status | Actions    |
 +--------------------------------------------------+
 | Statistics                                       |
-| Pending | Done | Total | High Priority          |
+| Pending | Done | Total | High Priority           |
 +--------------------------------------------------+
 ```
 
@@ -786,7 +739,6 @@ Simplified UML-style overview:
 | due_date       |
 | priority       |
 | status         |
-| notes          |
 +----------------+
 
 +----------------+
@@ -798,7 +750,6 @@ Simplified UML-style overview:
 | delete task    |
 | filter tasks   |
 | sort tasks     |
-| search tasks   |
 +----------------+
 
 +--------------------+
@@ -885,7 +836,7 @@ Before final submission, the relevant final code should be available on the subm
 
 ### GitHub Issues
 
-GitHub issues can be used to track tasks such as:
+GitHub issues were used to track tasks such as:
 
 - Implement task creation
 - Implement database persistence
@@ -911,7 +862,7 @@ GitHub issues can be used to track tasks such as:
 - Task editing
 - Task deletion
 - Task status updates
-- Filtering, searching, and sorting
+- Filtering and sorting
 - Calendar export
 - Automated tests
 - README documentation
