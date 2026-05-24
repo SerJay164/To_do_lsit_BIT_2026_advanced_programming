@@ -697,7 +697,7 @@ Examples:
 
 ## Screenshots
 
-The following screenshots document the final user interface of the application.
+The following screenshot documents the final user interface of the application.
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
@@ -785,35 +785,52 @@ These limitations are acceptable for the current project scope but provide clear
 
 ## Team and Work Distribution
 
-### Justin Vogler
-
-Main responsibilities:
-
-- GitHub repository setup and collaboration support
-- README and documentation work
-- Project structure and cleanup
-- Support with presentation preparation
-- Testing and review support
-
-### Jeremy Heer
-
-Main responsibilities:
-
-- GUI development with NiceGUI
-- Task dashboard and user interaction
-- Input forms and visual layout
-- User interface improvements
-- Live demo preparation
+The project was developed collaboratively by all three team members. Each member had main responsibility for specific parts of the application, while testing, debugging, code review, documentation and final quality assurance were supported as a team.
 
 ### Seraphin Schobin
 
 Main responsibilities:
 
-- Task logic and service functions
-- Database setup with SQLModel and SQLite
-- Calendar export functionality
-- Automated tests
-- Technical validation and debugging
+- Set up and maintained the GitHub repository structure
+- Supported branch management, collaboration workflow and project cleanup
+- Implemented core task logic and service-layer functions
+- Set up the database structure using SQLModel and SQLite
+- Connected task data with the dashboard and user interactions
+- Implemented the calendar export functionality
+- Supported testing, review and final debugging
+
+### Jeremy Heer
+
+Main responsibilities:
+
+- Worked on input forms and user interaction flows
+- Supported the visual layout and usability of the application
+- Contributed to ORM-related implementation and database integration
+- Supported the connection between frontend forms and backend logic
+- Prepared and structured the final presentation
+- Contributed to review, testing and final project refinements
+
+### Justin Vogler
+
+Main responsibilities:
+
+- Developed and refined the NiceGUI-based graphical user interface
+- Worked on dashboard layout, task display and visual structure
+- Created and improved README documentation and project descriptions
+- Wrote and supported automated tests
+- Supported technical validation, debugging and error fixing
+- Contributed to collaboration, presentation preparation and final quality assurance
+
+### Shared Responsibilities
+
+In addition to the individual responsibilities, all team members contributed to:
+
+- GitHub collaboration and branch management
+- Code reviews and merge conflict resolution
+- Manual testing of the application
+- Final documentation checks
+- Preparation of the live demo and final presentation
+- Final review of functionality, structure and project consistency
 
 ---
 
@@ -876,30 +893,6 @@ GitHub issues were used to track tasks such as:
 - Add CSV or PDF export
 - Add Docker deployment
 - Add GitHub Actions for automated test runs
-
----
-
-## Final Presentation Preparation
-
-The final presentation should cover:
-
-1. Justification of the chosen topic
-2. Project goals and features
-3. Architecture and file responsibilities
-4. Database model and ORM usage
-5. Testing strategy and test results
-6. Project management and work distribution
-7. Highlights and challenges
-8. Live demo of the application
-9. Q&A
-
-### Presentation Split
-
-Suggested split:
-
-- **Justin:** project idea, README, project management, documentation
-- **Jeremy:** GUI, user interaction, live demo
-- **Seraphin:** database, service logic, tests, calendar export
 
 ---
 
